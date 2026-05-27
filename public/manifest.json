@@ -1,0 +1,15 @@
+{
+  "name": "Resume Forge",
+  "short_name": "Resume Forge",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7F4EC",
+  "theme_color": "#1F3A5F",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
