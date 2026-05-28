@@ -21,5 +21,10 @@
   command = "npm run build"
   publish = "dist"
 
+[[redirects]]
+  from = "/*"
+  to = "/api/entry.netlify-edge" # or your respective entry function
+  status = 200
+
 [build.environment]
   NODE_VERSION = "22"
