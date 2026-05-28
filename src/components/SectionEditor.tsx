@@ -1,6 +1,6 @@
 import { component$, $, Slot, type QRL } from "@builder.io/qwik";
-import type { ResumeSection } from "~/data/resume";
-import { uid } from "~/data/resume";
+import type { ResumeSection, LanguageLevel } from "~/data/resume";
+import { uid, LANGUAGE_LEVELS, LANGUAGE_LEVEL_DOTS } from "~/data/resume";
 import { RichTextEditor } from "./RichTextEditor";
 import { TagInput } from "./TagInput";
 
@@ -28,6 +28,9 @@ interface Props {
   isDragOver: boolean;
   canMoveUp: boolean;
   canMoveDown: boolean;
+  /** Theme colors forwarded to TinyMCE editors (iframe can't read CSS vars). */
+  accent?: string;
+  text?: string;
 }
 
 export const SectionEditor = component$<Props>((props) => {
@@ -52,8 +55,6 @@ export const SectionEditor = component$<Props>((props) => {
         props.isDragging ? "dragging" : "",
         props.isDragOver ? "drag-over" : "border-brand-rule",
       ].join(" ")}
-      draggable
-      onDragStart$={() => props.onDragStart$(props.index)}
       onDragOver$={(ev) => {
         ev.preventDefault();
         props.onDragOver$(props.index);
@@ -67,9 +68,15 @@ export const SectionEditor = component$<Props>((props) => {
       {/* Header strip — drag handle, type pill, editable title, controls */}
       <div class="flex items-center gap-2 border-b border-brand-rule/60 px-3 py-2.5">
         <span
-          class="cursor-grab active:cursor-grabbing select-none text-brand-slate/60 hover:text-brand-orange transition-colors"
+          class="cursor-grab active:cursor-grabbing select-none text-brand-slate/60 hover:text-brand-orange transition-colors drag-handle"
           title="Drag to reorder"
           aria-label="Drag handle"
+          draggable={true}
+          onDragStart$={(ev) => {
+            // dataTransfer must be set or Firefox won't drag
+            try { (ev as DragEvent).dataTransfer?.setData("text/plain", String(props.index)); } catch {}
+            props.onDragStart$(props.index);
+          }}
         >
           <svg width="14" height="20" viewBox="0 0 14 20" fill="currentColor">
             <circle cx="3" cy="4" r="1.4" />
@@ -122,14 +129,14 @@ export const SectionEditor = component$<Props>((props) => {
 
       {/* Body — dispatched by section type */}
       <div class="px-4 py-3.5 space-y-3">
-        {section.type === "summary" && <SummaryEditor section={section} patchData$={patchData} />}
+        {section.type === "summary" && <SummaryEditor section={section} patchData$={patchData} accent={props.accent} text={props.text} />}
         {section.type === "languages" && <LanguagesEditor section={section} patchData$={patchData} />}
         {section.type === "skills" && <SkillsEditor section={section} patchData$={patchData} />}
         {section.type === "expertise" && <ExpertiseEditor section={section} patchData$={patchData} />}
-        {section.type === "experience" && <ExperienceEditor section={section} patchData$={patchData} />}
+        {section.type === "experience" && <ExperienceEditor section={section} patchData$={patchData} accent={props.accent} text={props.text} />}
         {section.type === "education" && <EducationEditor section={section} patchData$={patchData} />}
         {section.type === "certifications" && <CertificationsEditor section={section} patchData$={patchData} />}
-        {section.type === "awards" && <AwardsEditor section={section} patchData$={patchData} />}
+        {section.type === "awards" && <AwardsEditor section={section} patchData$={patchData} accent={props.accent} text={props.text} />}
         {section.type === "references" && <ReferencesEditor section={section} patchData$={patchData} />}
       </div>
     </div>
@@ -211,12 +218,16 @@ type SummarySec = Extract<ResumeSection, { type: "summary" }>;
 const SummaryEditor = component$<{
   section: SummarySec;
   patchData$: QRL<(patch: Record<string, unknown>) => void>;
-}>(({ section, patchData$ }) => (
+  accent?: string;
+  text?: string;
+}>(({ section, patchData$, accent, text }) => (
   <RichTextEditor
     value={section.data.text}
     onChange$={$((html: string) => patchData$({ text: html }))}
     placeholder="A short professional summary…"
     height={260}
+    accent={accent}
+    text={text}
   />
 ));
 
@@ -239,28 +250,29 @@ const LanguagesEditor = component$<{
           onMoveDown$={$(() => { const c = items.slice(); [c[idx + 1], c[idx]] = [c[idx], c[idx + 1]]; set(c); })}
           onRemove$={$(() => set(items.filter((_, i) => i !== idx)))}
         >
-          <div class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center pr-16">
+          <div class="grid grid-cols-[1fr_1fr] gap-2 items-center pr-16">
             <input class="field-input" placeholder="Language" value={item.name}
               onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, name: (el as HTMLInputElement).value }; set(c); }} />
-            <input class="field-input" placeholder="Level (e.g. Native)" value={item.level}
-              onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, level: (el as HTMLInputElement).value }; set(c); }} />
-            <div class="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  class="w-3.5 h-3.5 rounded-full transition-all hover:scale-110"
-                  style={{ background: n <= item.proficiency ? "#E67E22" : "#E5E9F0" }}
-                  onClick$={() => { const c = items.slice(); c[idx] = { ...item, proficiency: n }; set(c); }}
-                  aria-label={`Set proficiency ${n} of 5`}
-                />
+            <select
+              class="field-input"
+              value={item.level}
+              onChange$={(_, el) => {
+                const c = items.slice();
+                c[idx] = { ...item, level: (el as HTMLSelectElement).value as LanguageLevel };
+                set(c);
+              }}
+            >
+              {LANGUAGE_LEVELS.map((lvl) => (
+                <option key={lvl} value={lvl}>
+                  {`${lvl} (${LANGUAGE_LEVEL_DOTS[lvl]}/5)`}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
         </RowFrame>
       ))}
       <AddButton label="Add language"
-        onClick$={$(() => set([...items, { id: uid("lang"), name: "", level: "", proficiency: 3 }]))} />
+        onClick$={$(() => set([...items, { id: uid("lang"), name: "", level: "Intermediate" as LanguageLevel }]))} />
     </div>
   );
 });
@@ -271,37 +283,66 @@ const SkillsEditor = component$<{
   section: SkillsSec;
   patchData$: QRL<(patch: Record<string, unknown>) => void>;
 }>(({ section, patchData$ }) => {
-  const groups = section.data.groups;
-  const set = $((next: typeof groups) => patchData$({ groups: next }));
+  // IMPORTANT: every mutation reads `section.data.groups` LIVE at call time
+  // (not a value captured at render) and looks the target group up by its
+  // stable id. This avoids the Qwik closure-staleness bug where a handler
+  // captured during render holds an out-of-date snapshot of the array, which
+  // made added/removed/reordered tags silently disappear.
+  const setGroups$ = $((next: SkillsSec["data"]["groups"]) => patchData$({ groups: next }));
+
+  const setSkills$ = $((groupId: string, skills: string[]) => {
+    const next = section.data.groups.map((g) =>
+      g.id === groupId ? { ...g, skills } : g,
+    );
+    patchData$({ groups: next });
+  });
+
+  const setLabel$ = $((groupId: string, label: string) => {
+    const next = section.data.groups.map((g) =>
+      g.id === groupId ? { ...g, label } : g,
+    );
+    patchData$({ groups: next });
+  });
+
+  const moveGroup$ = $((groupId: string, dir: -1 | 1) => {
+    const groups = section.data.groups;
+    const idx = groups.findIndex((g) => g.id === groupId);
+    const j = idx + dir;
+    if (idx < 0 || j < 0 || j >= groups.length) return;
+    const next = groups.slice();
+    [next[idx], next[j]] = [next[j], next[idx]];
+    patchData$({ groups: next });
+  });
+
+  const removeGroup$ = $((groupId: string) => {
+    patchData$({ groups: section.data.groups.filter((g) => g.id !== groupId) });
+  });
+
   return (
     <div class="space-y-2">
-      {groups.map((g, idx) => (
+      {section.data.groups.map((g, idx) => (
         <RowFrame
           key={g.id}
           canUp={idx > 0}
-          canDown={idx < groups.length - 1}
-          onMoveUp$={$(() => { const c = groups.slice(); [c[idx - 1], c[idx]] = [c[idx], c[idx - 1]]; set(c); })}
-          onMoveDown$={$(() => { const c = groups.slice(); [c[idx + 1], c[idx]] = [c[idx], c[idx + 1]]; set(c); })}
-          onRemove$={$(() => set(groups.filter((_, i) => i !== idx)))}
+          canDown={idx < section.data.groups.length - 1}
+          onMoveUp$={$(() => moveGroup$(g.id, -1))}
+          onMoveDown$={$(() => moveGroup$(g.id, 1))}
+          onRemove$={$(() => removeGroup$(g.id))}
         >
           <div class="space-y-2 pr-16">
             <input class="field-input font-semibold" placeholder="Group label (e.g. Programming languages)"
               value={g.label}
-              onInput$={(_, el) => { const c = groups.slice(); c[idx] = { ...g, label: (el as HTMLInputElement).value }; set(c); }} />
+              onInput$={(_, el) => setLabel$(g.id, (el as HTMLInputElement).value)} />
             <TagInput
               values={g.skills}
-              onChange$={$((next: string[]) => {
-                const c = groups.slice();
-                c[idx] = { ...g, skills: next };
-                set(c);
-              })}
+              onChange$={$((next: string[]) => setSkills$(g.id, next))}
               placeholder="Type a skill, press Enter (or paste a comma-separated list)"
             />
           </div>
         </RowFrame>
       ))}
       <AddButton label="Add skill group"
-        onClick$={$(() => set([...groups, { id: uid("grp"), label: "", skills: [] }]))} />
+        onClick$={$(() => setGroups$([...section.data.groups, { id: uid("grp"), label: "", skills: [] }]))} />
     </div>
   );
 });
@@ -345,7 +386,9 @@ type XpSec = Extract<ResumeSection, { type: "experience" }>;
 const ExperienceEditor = component$<{
   section: XpSec;
   patchData$: QRL<(patch: Record<string, unknown>) => void>;
-}>(({ section, patchData$ }) => {
+  accent?: string;
+  text?: string;
+}>(({ section, patchData$, accent, text }) => {
   const items = section.data.items;
   const set = $((next: typeof items) => patchData$({ items: next }));
   return (
@@ -367,12 +410,21 @@ const ExperienceEditor = component$<{
                 onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, company: (el as HTMLInputElement).value }; set(c); }} />
             </div>
             <div class="grid grid-cols-[1fr_1fr_2fr] gap-2">
-              <input class="field-input" placeholder="Start (e.g. 03/2023)" value={item.start}
-                onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, start: (el as HTMLInputElement).value }; set(c); }} />
-              <input class="field-input" placeholder="End (or empty)" value={item.end}
-                onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, end: (el as HTMLInputElement).value }; set(c); }} />
-              <input class="field-input" placeholder="Location" value={item.location}
-                onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, location: (el as HTMLInputElement).value }; set(c); }} />
+              <label class="block">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-brand-slate">Start *</span>
+                <input class="field-input" type="month" required value={item.start}
+                  onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, start: (el as HTMLInputElement).value }; set(c); }} />
+              </label>
+              <label class="block">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-brand-slate">End <span class="text-brand-slate/60">(empty = present)</span></span>
+                <input class="field-input" type="month" value={item.end}
+                  onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, end: (el as HTMLInputElement).value }; set(c); }} />
+              </label>
+              <label class="block">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-brand-slate">Location</span>
+                <input class="field-input" placeholder="City, Country" value={item.location}
+                  onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, location: (el as HTMLInputElement).value }; set(c); }} />
+              </label>
             </div>
             <div>
               <div class="text-[10px] font-mono uppercase tracking-wider text-brand-slate mb-1">
@@ -387,6 +439,8 @@ const ExperienceEditor = component$<{
                 })}
                 placeholder="Describe the role, then use the bullet/number list toolbar buttons for achievements"
                 height={300}
+                accent={accent}
+                text={text}
               />
             </div>
           </div>
@@ -425,10 +479,16 @@ const EducationEditor = component$<{
             <input class="field-input" placeholder="School" value={item.school}
               onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, school: (el as HTMLInputElement).value }; set(c); }} />
             <div class="grid grid-cols-2 gap-2">
-              <input class="field-input" placeholder="Start" value={item.start}
-                onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, start: (el as HTMLInputElement).value }; set(c); }} />
-              <input class="field-input" placeholder="End" value={item.end}
-                onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, end: (el as HTMLInputElement).value }; set(c); }} />
+              <label class="block">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-brand-slate">Start *</span>
+                <input class="field-input" type="month" required value={item.start}
+                  onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, start: (el as HTMLInputElement).value }; set(c); }} />
+              </label>
+              <label class="block">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-brand-slate">End <span class="text-brand-slate/60">(empty = present)</span></span>
+                <input class="field-input" type="month" value={item.end}
+                  onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, end: (el as HTMLInputElement).value }; set(c); }} />
+              </label>
             </div>
           </div>
         </RowFrame>
@@ -477,7 +537,9 @@ type AwdSec = Extract<ResumeSection, { type: "awards" }>;
 const AwardsEditor = component$<{
   section: AwdSec;
   patchData$: QRL<(patch: Record<string, unknown>) => void>;
-}>(({ section, patchData$ }) => {
+  accent?: string;
+  text?: string;
+}>(({ section, patchData$, accent, text }) => {
   const items = section.data.items;
   const set = $((next: typeof items) => patchData$({ items: next }));
   return (
@@ -504,6 +566,8 @@ const AwardsEditor = component$<{
               variant="compact"
               placeholder="Description — what the award was for"
               height={200}
+              accent={accent}
+              text={text}
             />
           </div>
         </RowFrame>

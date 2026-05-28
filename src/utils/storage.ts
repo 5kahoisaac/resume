@@ -1,93 +1,143 @@
-import type { Resume, ResumeSection } from "~/data/resume";
-import { DEFAULT_RESUME } from "~/data/resume";
+import type { Resume, ResumeSection, ContactItem, LanguageLevel } from "~/data/resume";
+import { EMPTY_RESUME, loadDefaultResume, uid, LANGUAGE_LEVELS, DEFAULT_PALETTE_ID } from "~/data/resume";
 
-const STORAGE_KEY = "qwik-resume-editor:v1";
+const STORAGE_KEY = "qwik-resume-editor:v2";
 
-/** Escape user-supplied bullet strings before wrapping in HTML. */
 function escapeHtml(s: string): string {
   return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
-/**
- * Coerce a parsed resume blob to the current schema shape, filling in fields
- * that may be missing from older saved data. Keeps backward compatibility so
- * users don't lose work when we add fields or change shapes.
- *
- * Migrations applied:
- *   1. `header.phone` defaults to "" (added in v1.1)
- *   2. `experience.bullets[]` → folded into `description` as <ul><li> HTML
- *      (added in v1.2 — TinyMCE now handles bullets directly inside the rich
- *      text editor, so the separate array is no longer used).
- */
-export function migrate(resume: any): Resume {
-  if (!resume.header.phone) resume.header.phone = "";
+// ============================================================================
+// Migration — coerce legacy / partial JSON into the current Resume type.
+// Schema history:
+//   v1.0  Header had fixed fields { email, phone, website, linkedin, location }
+//         Experience used "MM/YYYY" / "Present"; languages had proficiency: number
+//         Theme had { accent, text, paper }
+//   v2.0  Header has `contacts: ContactItem[]`
+//         Experience/Education use "YYYY-MM"; empty end = present
+//         Languages have `level: LanguageLevel` enum
+//         Theme has `{ paletteId?, accent?, text? }`
+//         Default lives in /public/default-resume.json
+// ============================================================================
 
+function toMonth(s: any): string {
+  if (typeof s !== "string") return "";
+  if (s === "Present" || s === "present") return "";
+  if (/^\d{4}-\d{2}$/.test(s)) return s;
+  const m = s.match(/^(\d{1,2})\/(\d{4})$/);
+  if (m) return `${m[2]}-${m[1].padStart(2, "0")}`;
+  return s;
+}
+
+function normalizeLanguageLevel(level: any): LanguageLevel {
+  if (typeof level !== "string") return "Intermediate";
+  if ((LANGUAGE_LEVELS as readonly string[]).includes(level)) return level as LanguageLevel;
+  const lc = level.toLowerCase();
+  if (lc.includes("native") || lc.includes("fluent")) return "Native";
+  if (lc.includes("advanced")) return "Advanced";
+  if (lc.includes("proficient")) return "Proficient";
+  if (lc.includes("conv")) return "Conversational";
+  if (lc.includes("inter")) return "Intermediate";
+  if (lc.includes("elem")) return "Elementary";
+  if (lc.includes("basic") || lc.includes("beginner")) return "Basic";
+  return "Intermediate";
+}
+
+export function migrate(resume: any): Resume {
+  if (!resume || typeof resume !== "object") return EMPTY_RESUME;
+  if (!resume.header || typeof resume.header !== "object") {
+    resume.header = { name: "", title: "", contacts: [] };
+  }
+
+  // v1 header → v2 header.contacts
+  if (!Array.isArray(resume.header.contacts)) {
+    const h = resume.header;
+    const contacts: ContactItem[] = [];
+    const push = (type: ContactItem["type"], label?: string, href?: string) => {
+      if (label) contacts.push({ id: uid("c"), type, label, ...(href ? { href } : {}) });
+    };
+    push("email", h.email, h.email ? `mailto:${h.email}` : undefined);
+    if (h.phone) {
+      const digits = String(h.phone).replace(/[^\d+]/g, "");
+      push("tel", h.phone, `tel:${digits}`);
+    }
+    if (h.website) push("url", h.website, h.website);
+    if (h.linkedin) push("url", h.linkedin, h.linkedin);
+    if (h.location) push("string", h.location);
+    resume.header = { name: h.name || "", title: h.title || "", contacts };
+  }
+
+  if (!resume.theme) {
+    resume.theme = { paletteId: DEFAULT_PALETTE_ID };
+  } else if (!resume.theme.paletteId) {
+    delete resume.theme.paper;
+    resume.theme.paletteId = DEFAULT_PALETTE_ID;
+  }
+
+  if (!Array.isArray(resume.sections)) resume.sections = [];
   for (const section of resume.sections as ResumeSection[]) {
-    if (section.type !== "experience") continue;
-    for (const item of section.data.items) {
-      if (!Array.isArray(item.bullets) || item.bullets.length === 0) {
-        item.bullets = [];
-        continue;
+    if (section.type === "languages") {
+      for (const item of section.data.items as any[]) {
+        item.level = normalizeLanguageLevel(item.level);
+        delete item.proficiency;
       }
-      // Detect whether the bullets are HTML or plain text. Plain text → wrap
-      // each in <li> after escaping; HTML → embed verbatim (it came from a
-      // newer export where the rich-text editor already produced markup).
-      const listHtml = item.bullets
-        .map((b) => {
-          const looksLikeHtml = /<[a-z][\s\S]*>/i.test(b);
-          return `<li>${looksLikeHtml ? b : escapeHtml(b)}</li>`;
-        })
-        .join("");
-      const existing = (item.description ?? "").trim();
-      // Avoid creating a duplicate <ul> if a previous migration already ran
-      const alreadyHasList = /<ul[\s>]/i.test(existing);
-      item.description = alreadyHasList
-        ? existing
-        : existing
-          ? `${existing}<ul>${listHtml}</ul>`
-          : `<ul>${listHtml}</ul>`;
-      item.bullets = [];
+    }
+    if (section.type === "experience") {
+      for (const item of section.data.items as any[]) {
+        item.start = toMonth(item.start);
+        item.end = toMonth(item.end);
+        if (Array.isArray(item.bullets) && item.bullets.length > 0) {
+          const listHtml = item.bullets
+            .map((b: string) => {
+              const looksLikeHtml = /<[a-z][\s\S]*>/i.test(b);
+              return `<li>${looksLikeHtml ? b : escapeHtml(b)}</li>`;
+            })
+            .join("");
+          const existing = (item.description ?? "").trim();
+          const alreadyHasList = /<ul[\s>]/i.test(existing);
+          item.description = alreadyHasList
+            ? existing
+            : existing ? `${existing}<ul>${listHtml}</ul>` : `<ul>${listHtml}</ul>`;
+        }
+        item.bullets = [];
+      }
+    }
+    if (section.type === "education") {
+      for (const item of section.data.items as any[]) {
+        item.start = toMonth(item.start);
+        item.end = toMonth(item.end);
+      }
     }
   }
+  resume.version = "2.0.0";
   return resume as Resume;
 }
 
 /**
- * Load the resume from localStorage, falling back to the default.
- * Returns DEFAULT_RESUME if anything goes wrong (corrupt JSON, missing keys, etc.).
- * Designed to be SSR-safe: returns the default when `window` is undefined.
+ * Load: localStorage first, then /default-resume.json. Async because the
+ * default lives on the server now and we fetch it lazily.
  */
-export function loadResume(): Resume {
-  // SSR: return migrated default so SSR HTML already shows bullets as <ul>
-  if (typeof window === "undefined") {
-    return migrate(structuredClone(DEFAULT_RESUME));
-  }
+export async function loadResume(): Promise<Resume> {
+  if (typeof window === "undefined") return EMPTY_RESUME;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return migrate(structuredClone(DEFAULT_RESUME));
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.sections)) {
-      return migrate(structuredClone(DEFAULT_RESUME));
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object" && Array.isArray(parsed.sections)) {
+        return migrate(parsed);
+      }
     }
-    return migrate(parsed);
-  } catch {
-    return migrate(structuredClone(DEFAULT_RESUME));
-  }
+  } catch { /* fall through */ }
+  return migrate(await loadDefaultResume());
 }
 
 export function saveResume(resume: Resume): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(resume));
-  } catch {
-    // Quota exceeded or storage disabled — fail silently; the editor still works
-    // for the current session.
-  }
+  } catch { /* quota — ignore */ }
 }
 
 export function clearResume(): void {
@@ -95,7 +145,6 @@ export function clearResume(): void {
   window.localStorage.removeItem(STORAGE_KEY);
 }
 
-/** Export the resume as a pretty-printed JSON file the user can re-import later. */
 export function downloadResumeJSON(resume: Resume): void {
   const blob = new Blob([JSON.stringify(resume, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -109,20 +158,11 @@ export function downloadResumeJSON(resume: Resume): void {
   URL.revokeObjectURL(url);
 }
 
-/**
- * Parse a JSON file the user uploaded. Throws with a friendly message on failure
- * so the caller can surface it via a toast.
- */
 export function parseResumeJSON(jsonText: string): Resume {
   let parsed: unknown;
-  try {
-    parsed = JSON.parse(jsonText);
-  } catch {
-    throw new Error("This file isn't valid JSON.");
-  }
-  if (!parsed || typeof parsed !== "object") {
-    throw new Error("JSON root must be an object.");
-  }
+  try { parsed = JSON.parse(jsonText); }
+  catch { throw new Error("This file isn't valid JSON."); }
+  if (!parsed || typeof parsed !== "object") throw new Error("JSON root must be an object.");
   const r = parsed as Partial<Resume>;
   if (!r.header || !Array.isArray(r.sections)) {
     throw new Error("Missing `header` or `sections` — is this a resume export?");

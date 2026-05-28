@@ -11,6 +11,7 @@ import type {
   ExpertiseItem,
   LanguageItem,
 } from "~/data/resume";
+import { LANGUAGE_LEVEL_DOTS, PALETTES, DEFAULT_PALETTE_ID } from "~/data/resume";
 import { renderRichText, autoLink } from "~/utils/linkify";
 
 interface Props {
@@ -26,10 +27,19 @@ interface Props {
  * Lays sections out in the order they appear in `resume.sections` — so the
  * drag-and-drop reorder in the editor is reflected here with no extra logic.
  */
+/** Resolve the rendered colors from theme.paletteId + optional overrides. */
+function resolveColors(resume: Resume): { accent: string; text: string; paper: string } {
+  const t = resume.theme ?? {};
+  const palette = PALETTES.find((p) => p.id === (t.paletteId ?? DEFAULT_PALETTE_ID)) ?? PALETTES[0];
+  return {
+    accent: t.accent ?? palette.accent,
+    text: t.text ?? palette.text,
+    paper: "#ffffff", // paper is always white per spec
+  };
+}
+
 export const ResumePreview = component$<Props>(({ resume }) => {
-  const accent = resume.theme?.accent ?? "#E67E22";
-  const text = resume.theme?.text ?? "#1F3A5F";
-  const paper = resume.theme?.paper ?? "#ffffff";
+  const { accent, text, paper } = resolveColors(resume);
 
   return (
     <div
@@ -50,11 +60,9 @@ export const ResumePreview = component$<Props>(({ resume }) => {
 });
 
 // ============================================================================
-// Header — name, title, contact row. Matches the Enhancv PDF exactly:
-//   * Name in navy (text color), large and bold
-//   * Title/tagline in orange (accent color)
-//   * Contact row: orange icons + navy bold text, all wrapped in <a> tags
-//     with mailto:/tel:/https:// schemes where appropriate
+// Header — name, title, contact row. The contact row iterates header.contacts[]
+// directly; the *order in the array IS the rendered order*. Each item picks
+// an icon glyph from its `type` discriminator and resolves an href.
 // ============================================================================
 const Header = component$<{ resume: Resume; accent: string; text: string }>(
   ({ resume, accent, text }) => {
@@ -77,62 +85,64 @@ const Header = component$<{ resume: Resume; accent: string; text: string }>(
           class="mt-3 font-sans font-bold"
           style={{ fontSize: "8.5pt", color: text, lineHeight: 1.6 }}
         >
-          {header.email && (
+          {header.contacts.map((c) => (
             <ContactItem
-              icon="email"
-              value={header.email}
-              href={`mailto:${header.email}`}
+              key={c.id}
+              icon={iconForKind(c.type)}
+              value={c.label}
+              href={hrefForContact(c)}
               accent={accent}
               text={text}
+              external={c.type === "url"}
             />
-          )}
-          {header.phone && (
-            <ContactItem
-              icon="phone"
-              value={header.phone}
-              href={`tel:${header.phone.replace(/[^\d+]/g, "")}`}
-              accent={accent}
-              text={text}
-            />
-          )}
-          {header.website && (
-            <ContactItem
-              icon="link"
-              value={header.website}
-              href={ensureHttp(header.website)}
-              accent={accent}
-              text={text}
-              external
-            />
-          )}
-          {header.linkedin && (
-            <ContactItem
-              icon="link"
-              value={header.linkedin}
-              href={ensureHttp(header.linkedin)}
-              accent={accent}
-              text={text}
-              external
-            />
-          )}
-          {header.location && (
-            <ContactItem
-              icon="pin"
-              value={header.location}
-              accent={accent}
-              text={text}
-            />
-          )}
+          ))}
         </div>
       </header>
     );
   },
 );
 
+/** Map ContactKind → ICON_GLYPH key. */
+function iconForKind(k: import("~/data/resume").ContactKind): IconKind {
+  if (k === "email") return "email";
+  if (k === "tel") return "phone";
+  if (k === "url") return "link";
+  return "pin"; // "string" — treat as a plain item; pin glyph reads as generic
+}
+
+/** Compute the href for a contact item. Type-aware: derives from label if href empty. */
+function hrefForContact(c: import("~/data/resume").ContactItem): string | undefined {
+  if (c.type === "string") return undefined;
+  if (c.href && c.href.trim()) return c.href;
+  if (c.type === "email") return `mailto:${c.label.trim()}`;
+  if (c.type === "tel") return `tel:${c.label.replace(/[^\d+]/g, "")}`;
+  if (c.type === "url") return ensureHttp(c.label.trim());
+  return undefined;
+}
+
 /** Prepend https:// if the URL is missing a scheme. */
 function ensureHttp(url: string): string {
   if (/^https?:\/\//i.test(url)) return url;
   return `https://${url}`;
+}
+
+/**
+ * Format a stored "YYYY-MM" date as "MM/YYYY" for display. Returns "" for
+ * empty, or echoes anything that doesn't match the expected pattern (lets
+ * legacy strings like "Present" pass through during migration).
+ */
+function fmtMonth(s: string): string {
+  if (!s) return "";
+  const m = s.match(/^(\d{4})-(\d{2})$/);
+  if (m) return `${m[2]}/${m[1]}`;
+  return s;
+}
+
+/** Date range: "MM/YYYY – MM/YYYY"; empty end means "Present". */
+function fmtRange(start: string, end: string): string {
+  const s = fmtMonth(start);
+  const e = end ? fmtMonth(end) : "Present";
+  return s ? `${s} – ${e}` : e;
 }
 
 type IconKind = "email" | "phone" | "link" | "pin";
@@ -267,7 +277,7 @@ const LanguagesBlock = component$<{ items: LanguageItem[]; accent: string }>(
               <span
                 key={i}
                 class="prof-dot"
-                style={{ background: i < lang.proficiency ? accent : "#E5E9F0" }}
+                style={{ background: i < LANGUAGE_LEVEL_DOTS[lang.level] ? accent : "#E5E9F0" }}
               />
             ))}
           </div>
@@ -349,7 +359,7 @@ const ExperienceEntry = component$<{ item: ExperienceItem; accent: string; text:
       {/* Date column — 88px wide */}
       <div class="w-[88px] flex-shrink-0 pt-0.5" style={{ color: text }}>
         <div class="font-sans font-bold leading-tight" style={{ fontSize: "8.5pt", wordSpacing: "-1px" }}>
-          {item.end ? `${item.start} – ${item.end}` : item.start}
+          {fmtRange(item.start, item.end)}
         </div>
         {item.location && (
           <div
@@ -409,7 +419,7 @@ const EducationBlock = component$<{ items: EducationItem[]; accent: string; text
         <div key={e.id} class="flex">
           <div class="w-[88px] flex-shrink-0 pt-0.5">
             <div class="font-sans font-bold leading-tight" style={{ fontSize: "8.5pt" }}>
-              {e.end ? `${e.start} – ${e.end}` : e.start}
+              {fmtRange(e.start, e.end)}
             </div>
           </div>
           <div class="w-[16px] flex-shrink-0" />

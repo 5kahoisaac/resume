@@ -1,0 +1,451 @@
+{
+  "version": "2.0.0",
+  "header": {
+    "name": "ISAAC NG, KA HO",
+    "title": "Senior Software Engineer | Web & App Development Technical Leadership | Project Management | Efficient Problem Solving",
+    "contacts": [
+      {
+        "id": "c_1",
+        "type": "email",
+        "label": "me@isaac.ng",
+        "href": "mailto:me@isaac.ng"
+      },
+      {
+        "id": "c_2",
+        "type": "url",
+        "label": "https://isaac.ng",
+        "href": "https://isaac.ng"
+      },
+      {
+        "id": "c_3",
+        "type": "url",
+        "label": "https://www.linkedin.com/in/isaac-ng-573851159/",
+        "href": "https://www.linkedin.com/in/isaac-ng-573851159/"
+      },
+      {
+        "id": "c_4",
+        "type": "string",
+        "label": "Hong Kong"
+      }
+    ]
+  },
+  "theme": {
+    "paletteId": "orange-navy"
+  },
+  "sections": [
+    {
+      "id": "id_1",
+      "type": "summary",
+      "title": "Summary",
+      "visible": true,
+      "data": {
+        "text": "Software Engineer with 9+ years of experience designing and delivering innovative software solutions across diverse industries. Proven expertise in leading development teams, driving SaaS product development, and managing multiple projects simultaneously. Skilled in optimizing performance, enhancing efficiency, and solving complex problems through advanced programming, system architecture design, and effective collaboration."
+      }
+    },
+    {
+      "id": "id_2",
+      "type": "languages",
+      "title": "Languages",
+      "visible": true,
+      "data": {
+        "items": [
+          {
+            "id": "id_3",
+            "name": "Cantonese",
+            "level": "Native"
+          },
+          {
+            "id": "id_4",
+            "name": "Mandarin",
+            "level": "Proficient"
+          },
+          {
+            "id": "id_5",
+            "name": "English",
+            "level": "Advanced"
+          }
+        ]
+      }
+    },
+    {
+      "id": "id_6",
+      "type": "skills",
+      "title": "Skills & Knowledges",
+      "visible": true,
+      "data": {
+        "groups": [
+          {
+            "id": "id_7",
+            "label": "Programming languages",
+            "skills": [
+              "JavaScript",
+              "TypeScript",
+              "Golang",
+              "Python",
+              "Java",
+              "PHP",
+              "Objective C"
+            ]
+          },
+          {
+            "id": "id_8",
+            "label": "Frameworks",
+            "skills": [
+              "jQuery",
+              "Electron",
+              "React",
+              "React Native",
+              "Expo",
+              "Nest.js",
+              "Gatsby.js",
+              "Angular 4",
+              "Vue.js",
+              "Taro",
+              "CakePHP",
+              "Laravel",
+              "Drupal",
+              "WordPress",
+              "Express.js",
+              "NestJs",
+              "Tailwind.css",
+              "MUI",
+              "Ionic",
+              "Shadcn",
+              "GORM"
+            ]
+          },
+          {
+            "id": "id_9",
+            "label": "Databases",
+            "skills": [
+              "MySQL",
+              "PostgreSQL",
+              "DynamoDB",
+              "MongoDB",
+              "Timescale DB",
+              "Redis"
+            ]
+          },
+          {
+            "id": "id_10",
+            "label": "Knowledge",
+            "skills": [
+              "HTML",
+              "CSS",
+              "Git",
+              "GitHub",
+              "GitHub CI/CD",
+              "GitLab",
+              "GitLab CI/CD",
+              "Monorepo",
+              "Micro Frontend",
+              "Turbo repo",
+              "Web Component",
+              "Postman",
+              "Figma",
+              "Design System",
+              "Storybook",
+              "Docker",
+              "Camunda",
+              "Airflow",
+              "Streamlit",
+              "n8n",
+              "windmill.dev",
+              "sanity.io",
+              "Netlify",
+              "RabbitMQ",
+              "Sentry",
+              "Datadog",
+              "KeyCloak",
+              "Restful",
+              "GraphQL",
+              "Kong",
+              "Linux",
+              "Apache",
+              "Nginx",
+              "MinIO",
+              "WeChat APIs",
+              "Facebook Messager APIs",
+              "AWS",
+              "GCP",
+              "Spec-Driven Development",
+              "Test-Driven Development",
+              "Agentic AI",
+              "Compounding Engineering",
+              "Context Engineering"
+            ]
+          },
+          {
+            "id": "id_11",
+            "label": "Software",
+            "skills": [
+              "MS Office",
+              "TablePlus",
+              "DBeaver",
+              "MongoDB Compass",
+              "XCode",
+              "Android Studio",
+              "VSCode",
+              "AnyDesk",
+              "JetBrains IDEs",
+              "Docker Desktop",
+              "1Password",
+              "Ollama",
+              "Amazon Q",
+              "Claude Code",
+              "Gemini",
+              "Open Code"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "id_12",
+      "type": "expertise",
+      "title": "Industry Expertise",
+      "visible": true,
+      "data": {
+        "items": [
+          {
+            "id": "id_13",
+            "label": "Leadership",
+            "level": 75
+          },
+          {
+            "id": "id_14",
+            "label": "Project Management",
+            "level": 78
+          },
+          {
+            "id": "id_15",
+            "label": "Problem Solving",
+            "level": 88
+          },
+          {
+            "id": "id_16",
+            "label": "Communication",
+            "level": 55
+          }
+        ]
+      }
+    },
+    {
+      "id": "id_17",
+      "type": "experience",
+      "title": "Experience",
+      "visible": true,
+      "data": {
+        "items": [
+          {
+            "id": "id_18",
+            "title": "Senior Web Developer",
+            "company": "The Executive Centre",
+            "location": "Wong Chuk Hang, Hong Kong",
+            "start": "2025-08",
+            "end": "",
+            "description": "<p>The Executive Centre (TEC) is a premium flexible workspace provider, opened its doors in Hong Kong in 1994 and has over 240+ Centres in 37 cities and 15 markets.</p><ul><li>Consistent maintenance and timely updates.</li><li>Boosted development efficiency through integrating AI workflows into the process.</li></ul>"
+          },
+          {
+            "id": "id_19",
+            "title": "Principal Software Engineer",
+            "company": "Varadise Limited",
+            "location": "Kwun Tong, Hong Kong",
+            "start": "2025-04",
+            "end": "2025-07",
+            "description": "<p>Varadise is a Hong Kong-based AI technology company, founded in 2019, specializing in digital twin solutions and smart construction management. Its <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> platform integrates AI, IoT, and BIM data to enhance project efficiency, safety, and compliance in the construction and smart city sectors.</p><ul><li>Established <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> cross-platform (React &amp; React Native) design system, defining monorepo structure, creating CLI tools for code generation, researching styling solutions, standardizing UI components with documentation, and configuring Storybook and package build pipeline.</li><li>Refactored <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> status-flow pages and workflow backend solo in 1.5 months, implementing conditional actions for form submissions, background deadline countdown, and notifications.</li><li>Developed CLI tools for mobile app builds, enabling customization of app icon, name, and environment, and supporting future CI/CD pipeline automation.</li></ul>"
+          },
+          {
+            "id": "id_20",
+            "title": "Technical Leader (Product Frontend)",
+            "company": "Varadise Limited",
+            "location": "",
+            "start": "2024-05",
+            "end": "2025-04",
+            "description": "<ul><li>Collaborated on <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> micro-frontend architecture, defining monorepo structure, creating CLI tools for code generation, and setting up Storybook and web-based design system.</li><li>Independently developed a microservices-based workflow and form system prototype for <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> in 1.5 months.</li><li>Conducted code reviews, task distribution, and standardized coding practices with documented guides for team and contributors.</li><li>Contributed to Scrum sprints with task time estimates and provided technical advice to product manager to optimize company objectives.</li></ul>"
+          },
+          {
+            "id": "id_21",
+            "title": "Senior Web Developer",
+            "company": "Varadise Limited",
+            "location": "",
+            "start": "2023-03",
+            "end": "2024-05",
+            "description": "<ul><li>Built a generic form rendering library and collaborated on a form-workflow backend for DWSS v3, simplifying form creation.</li><li>Solo-developed DWSS v2 frontend in 3 months with global state management and standardized UI, enhancing UX and consistency.</li><li>Created ETL process and automated government report submissions using Airflow for DWSS v2.</li><li>Dockerized DWSS v2 microservice with Docker Compose, streamlining testing and debugging.</li><li>Built CLI tool for legacy DWSS v1, reducing manual data processing time by 80%.</li><li>Improved team processes by standardizing tickets and mentoring junior developers through code reviews and task distribution.</li></ul>"
+          },
+          {
+            "id": "id_22",
+            "title": "Senior Software Engineer",
+            "company": "Spaceship HK",
+            "location": "Sha Tin, Hong Kong",
+            "start": "2019-11",
+            "end": "2022-07",
+            "description": "<p>Spaceship, Hong Kong-based logistics platform, simplifies e-commerce shipping. Spaceship Pro offers discounted UPS, FedEx, DHL rates for door-to-door delivery in 200+ regions. Tech streamlines order management, tracking, customs, inventory, optimizing operations and cutting costs.</p><ul><li>Enhanced Spaceship's SEO by transitioning from CSR to SSR and optimized APIs by migrating to NestJS for improved efficiency and scalability.</li><li>Collaborated on reusable frontend design system for consistent UI across projects and built a top-ranked cross-platform SaaS app in two months, boosting revenue.</li><li>Migrated company's WordPress site to Gatsby.js with Sanity CMS, improving LCP, SEO, and search visibility via Nginx redirects.</li><li>Led internal tutorials, mentored interns and junior developers, and supported feature development and bug fixing to enhance team collaboration.</li></ul>"
+          },
+          {
+            "id": "id_23",
+            "title": "Web Application Developer",
+            "company": "WeMine",
+            "location": "Kwun Tong, Hong Kong",
+            "start": "2018-01",
+            "end": "2019-10",
+            "description": "<p>WeMine, founded in 2014, offers chat-based marketing solutions on WeChat, WhatsApp, and Facebook Messenger. Specializing in digital marketing and automation, including the WM:Suite platform, WeMine enhances brand engagement with data-driven strategies and content personalization.</p><ul><li>Revamped <a href=\"https://www.wemine.tech/intelligence\" target=\"_blank\" rel=\"noopener noreferrer\">Intelligence</a> frontend, adding analytics and optimizing performance for enhanced user experience and efficiency.</li><li>Architected standardized API connectors for <a href=\"https://www.wemine.tech/activate\" target=\"_blank\" rel=\"noopener noreferrer\">Activate</a>, enabling seamless WeChat and Facebook Messenger integration.</li><li>Modernized <a href=\"https://www.wemine.tech/engage\" target=\"_blank\" rel=\"noopener noreferrer\">Engage</a>'s legacy frontend with React 16 for a responsive, scalable UI.</li><li>Built WeChat and Facebook Messenger mini programs and campaign sites, boosting client engagement.</li><li>Integrated core product features with campaign mini programs for cohesive, high-impact digital experiences.</li></ul>"
+          },
+          {
+            "id": "id_24",
+            "title": "Web Development Intern",
+            "company": "Web-gineer",
+            "location": "Lai Chi Kok, Hong Kong",
+            "start": "2016-05",
+            "end": "2017-12",
+            "description": "<p>Webgineer Limited, a Hong Kong agency since 2012, excels in execution and development. We prioritize clarity, aesthetics, and functionality through research and testing, delivering client-focused solutions.</p>"
+          }
+        ]
+      }
+    },
+    {
+      "id": "id_25",
+      "type": "education",
+      "title": "Education",
+      "visible": true,
+      "data": {
+        "items": [
+          {
+            "id": "id_26",
+            "degree": "Bachelor of Engineering - BE, Computer Science",
+            "school": "The Hong Kong University of Science and Technology",
+            "start": "2014-01",
+            "end": "2018-12"
+          }
+        ]
+      }
+    },
+    {
+      "id": "id_27",
+      "type": "certifications",
+      "title": "Licenses & Certifications",
+      "visible": true,
+      "data": {
+        "items": [
+          {
+            "id": "id_28",
+            "name": "Cloud-Based Lightweight Optimization for WordPress",
+            "issuer": "Udemy"
+          },
+          {
+            "id": "id_29",
+            "name": "Gemini Certified Educator",
+            "issuer": "Google for Education"
+          },
+          {
+            "id": "id_30",
+            "name": "Software Engineer",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_31",
+            "name": "Frontend Developer (React)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_32",
+            "name": "Problem Solving (Intermediate)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_33",
+            "name": "Rest API (Intermediate)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_34",
+            "name": "SQL (Advanced)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_35",
+            "name": "React (Basic)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_36",
+            "name": "JavaScript (Intermediate)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_37",
+            "name": "Node.js (Intermediate)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_38",
+            "name": "Go (Intermediate)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_39",
+            "name": "Python (Basic)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_40",
+            "name": "Java (Basic)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_41",
+            "name": "IIQE Paper I",
+            "issuer": "Vocational Training Council"
+          },
+          {
+            "id": "id_42",
+            "name": "IIQE Paper III",
+            "issuer": "Vocational Training Council"
+          }
+        ]
+      }
+    },
+    {
+      "id": "id_43",
+      "type": "awards",
+      "title": "Honors & Awards",
+      "visible": true,
+      "data": {
+        "items": [
+          {
+            "id": "id_44",
+            "name": "Cyberport Creative Micro Fund (CCMF) Grantee",
+            "description": "\"WhatsHulb,\" a fair platform empowering everyone to participate in co-creations and bring creative visions to life, secured HK$100,000 in seed funding from the Cyberport Creative Micro Fund in 2017 to kick-start its innovative idea and develop prototypes."
+          },
+          {
+            "id": "id_45",
+            "name": "JUPAS Scholarships",
+            "description": "HKUST provides a wide variety of scholarships for students who demonstrate exceptional academic accomplishment."
+          }
+        ]
+      }
+    },
+    {
+      "id": "id_46",
+      "type": "references",
+      "title": "References",
+      "visible": true,
+      "data": {
+        "items": [
+          {
+            "id": "id_47",
+            "name": "Tom Tong",
+            "role": "Chief Technology Officer @Varadise Limited",
+            "contact": "(+852) 6200-5806"
+          },
+          {
+            "id": "id_48",
+            "name": "Chi Lam",
+            "role": "Co-Founder & CEO @Spaceship HK",
+            "contact": "(+852) 6028-6962"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -96,6 +96,9 @@ interface Props {
   placeholder?: string;
   /** Approximate editor height in pixels (TinyMCE rounds up). */
   height?: number;
+  /** Theme colors for the editor iframe content (links use accent, body text). */
+  accent?: string;
+  text?: string;
 }
 
 export const RichTextEditor = component$<Props>((props) => {
@@ -132,7 +135,7 @@ export const RichTextEditor = component$<Props>((props) => {
     );
     editor.setAttribute(
       "content_style",
-      `body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13.5px; color: #1F3A5F; line-height: 1.55; padding: 6px 10px; } a { color: #E67E22; text-decoration: underline; }`,
+      `body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13.5px; color: ${props.text ?? "#1F3A5F"}; line-height: 1.55; padding: 6px 10px; } a { color: ${props.accent ?? "#E67E22"}; text-decoration: underline; } strong, b { font-weight: 700; } em, i { font-style: italic; }`,
     );
     editor.setAttribute("link_default_target", "_blank");
     editor.setAttribute("link_default_protocol", "https");
@@ -143,15 +146,15 @@ export const RichTextEditor = component$<Props>((props) => {
 
     // ── Wire change events via TinyMCE's `setup` config ─────────────────────
     // The web component element accepts a `setup` *property* (not attribute)
-    // that receives the underlying editor instance. This is the only reliable
-    // way to subscribe to content changes — relying on DOM events bubbling out
-    // of the editor's iframe is flaky across browsers and TinyMCE versions.
+    // that receives the underlying editor instance. We capture THAT instance
+    // (the reliable handle) and read getContent() from it — reading from the
+    // custom element directly is unreliable across TinyMCE versions.
     let lastEmitted = props.value || "";
+    let instance: any = null;
     const emit = () => {
       try {
-        const inst = (editor as any).editor;
-        if (!inst) return;
-        const html = inst.getContent();
+        if (!instance) return;
+        const html = instance.getContent();
         if (html === lastEmitted) return; // skip identity emits
         lastEmitted = html;
         props.onChange$(html);
@@ -160,13 +163,12 @@ export const RichTextEditor = component$<Props>((props) => {
       }
     };
     (editor as any).setup = (ed: any) => {
-      // Capture all the events that signal "content changed", including ones
-      // that fire mid-typing (input, keyup) and ones that fire on structural
-      // changes (NodeChange, ExecCommand, SetContent for paste/undo).
-      ed.on("input keyup change NodeChange ExecCommand SetContent Undo Redo", () => {
-        emit();
-      });
-      ed.on("blur", () => emit());
+      instance = ed;
+      // Capture every event that signals "content changed", including ones
+      // that fire on structural changes (ExecCommand fires for bold/italic/
+      // underline/lists; SetContent for paste/undo; NodeChange for caret).
+      ed.on("input keyup change NodeChange ExecCommand SetContent Undo Redo", emit);
+      ed.on("blur", emit);
     };
 
     // Set initial content — must be a text node, not innerHTML (per TinyMCE
@@ -174,7 +176,11 @@ export const RichTextEditor = component$<Props>((props) => {
     editor.appendChild(document.createTextNode(props.value || ""));
 
     wrapperRef.value.appendChild(editor);
-    editorRef.value = noSerialize(editor);
+    // Stash the instance getter so the external-sync task can read/write it.
+    editorRef.value = noSerialize({
+      getContent: () => (instance ? instance.getContent() : ""),
+      setContent: (html: string) => instance && instance.setContent(html),
+    } as any);
     ready.value = true;
 
     cleanup(() => {

@@ -22,25 +22,67 @@ export type SectionType =
   | "awards"
   | "references";
 
+/**
+ * Header.contacts is an ordered, typed, append-able list. The order in the
+ * array is the order rendered in the preview — no hardcoded slots.
+ *
+ * Each item has:
+ *   - id: stable identifier so drag/edit doesn't lose focus
+ *   - type: drives the icon glyph and the default href scheme
+ *   - label: the visible text (e.g. "me@isaac.ng", "+852 1234 5678", "Hong Kong")
+ *   - href: explicit URL/scheme; optional for "string" type (plain text only).
+ *           For url/email/tel, if blank we derive from label.
+ */
+export type ContactKind = "string" | "url" | "email" | "tel";
+
+export interface ContactItem {
+  id: string;
+  type: ContactKind;
+  label: string;
+  href?: string;
+}
+
 export interface Header {
   name: string;
   title: string;
-  email: string;     // rendered as a mailto: link
-  phone: string;     // rendered as a tel: link
-  website: string;   // rendered as an https:// link
-  linkedin: string;  // rendered as an https:// link
-  location: string;  // plain text
+  contacts: ContactItem[];
 }
 
 export interface SummaryData {
   text: string;
 }
 
+/**
+ * Language proficiency is an enum, not free text. Selecting a level also
+ * determines the dot count (1..5) for the proficiency indicator, so we keep
+ * a single source of truth here.
+ */
+export const LANGUAGE_LEVELS = [
+  "Basic",
+  "Elementary",
+  "Intermediate",
+  "Conversational",
+  "Proficient",
+  "Advanced",
+  "Native",
+] as const;
+export type LanguageLevel = (typeof LANGUAGE_LEVELS)[number];
+
+/** Map level → number of filled dots (out of 5). */
+export const LANGUAGE_LEVEL_DOTS: Record<LanguageLevel, number> = {
+  Basic: 1,
+  Elementary: 2,
+  Intermediate: 3,
+  Conversational: 3,
+  Proficient: 4,
+  Advanced: 4,
+  Native: 5,
+};
+
 export interface LanguageItem {
   id: string;
   name: string;
-  level: string;       // human label e.g. "Native", "Advanced"
-  proficiency: number; // 0..5 — drives the dot indicator
+  level: LanguageLevel;
 }
 
 export interface LanguagesData {
@@ -72,20 +114,15 @@ export interface ExperienceItem {
   title: string;
   company: string;
   location: string;
-  start: string;       // free-text date — e.g. "11/2019", "Present"
+  /**
+   * Stored as "YYYY-MM" (HTML `<input type="month">` native format). Rendered
+   * as "MM/YYYY". `start` is required; an empty `end` means "present".
+   */
+  start: string;
   end: string;
-  /**
-   * Rich-text (HTML) describing the role. TinyMCE produces this and the
-   * preview renders it via dangerouslySetInnerHTML. Bullet points live here
-   * as `<ul><li>…</li></ul>` — no separate field needed.
-   */
+  /** Rich-text (HTML) — TinyMCE-authored content including bullet lists. */
   description: string;
-  /**
-   * @deprecated Legacy field from the v1.0 schema where bullets were a
-   * separate string[]. Newly-created items always have `[]`; older saved data
-   * gets migrated into `description` as an inline list by storage.ts. Kept on
-   * the type so older JSON imports still parse cleanly.
-   */
+  /** @deprecated Legacy v1 field — migrated into description. */
   bullets: string[];
 }
 
@@ -97,8 +134,11 @@ export interface EducationItem {
   id: string;
   degree: string;
   school: string;
+  /** Stored as "YYYY-MM"; start required, empty end means "present". */
   start: string;
   end: string;
+  /** Optional rich-text description (achievements, focus areas). */
+  description?: string;
 }
 
 export interface EducationData {
@@ -148,15 +188,37 @@ export type ResumeSection =
   | { id: string; type: "awards"; title: string; visible: boolean; data: AwardsData }
   | { id: string; type: "references"; title: string; visible: boolean; data: ReferencesData };
 
+/**
+ * Color palettes — accent and text bundled as a set. Users pick a palette,
+ * not individual colors. Paper is always white per product spec.
+ */
+export interface ColorPalette {
+  id: string;
+  name: string;
+  accent: string; // section headings, links, contact icons, expertise bars
+  text: string;   // body copy and headings
+}
+
+export const PALETTES: ColorPalette[] = [
+  { id: "orange-navy",    name: "Orange · Navy",     accent: "#E67E22", text: "#1F3A5F" },
+  { id: "navy-black",     name: "Navy · Black",      accent: "#1F3A5F", text: "#111827" },
+  { id: "green-charcoal", name: "Green · Charcoal",  accent: "#0F766E", text: "#374151" },
+  { id: "purple-slate",   name: "Purple · Slate",    accent: "#7C3AED", text: "#334155" },
+  { id: "magenta-graphite", name: "Magenta · Graphite", accent: "#BE185D", text: "#1F2937" },
+  { id: "mono",           name: "Monochrome",        accent: "#111827", text: "#374151" },
+];
+
+export const DEFAULT_PALETTE_ID = "orange-navy";
+
 export interface Resume {
   version: string;
   header: Header;
   sections: ResumeSection[];
-  // Optional theming so users can re-skin without forking the code
+  /** Theme palette id (from PALETTES) — or override colors individually. */
   theme?: {
-    accent: string;     // hex — drives section headings, chips, bars
-    text: string;       // hex — body copy
-    paper: string;      // hex — page background
+    paletteId?: string;
+    accent?: string; // override the palette's accent
+    text?: string;   // override the palette's text
   };
 }
 
@@ -166,278 +228,41 @@ export function uid(prefix = "id"): string {
 }
 
 // ============================================================================
-// Default resume — Isaac's data, extracted from the supplied PDF.
-// Kept here (rather than in the component) so a brand-new user gets a
-// useful example *and* the editor has something meaningful to render
-// before any localStorage is set.
+// Default resume loading
+// ----------------------------------------------------------------------------
+// The default resume content is NOT compiled into the JS bundle. It lives at
+// `/public/default-resume.json` so an admin can edit the JSON and commit to
+// git for an auto-deployed update — no rebuild of components required.
+//
+// Both the file at `/public/default-resume.json` AND any JSON exported by
+// the editor share the same `Resume` schema, so the file is round-trippable:
+// import an exported JSON, edit it, save it as default-resume.json, commit.
 // ============================================================================
 
-export const DEFAULT_RESUME: Resume = {
-  version: "1.0.0",
-  header: {
-    name: "ISAAC NG, KA HO",
-    title:
-      "Senior Software Engineer | Web & App Development Technical Leadership | Project Management | Efficient Problem Solving",
-    email: "me@isaac.ng",
-    phone: "",
-    website: "https://isaac.ng",
-    linkedin: "https://www.linkedin.com/in/isaac-ng-573851159/",
-    location: "Hong Kong",
-  },
-  theme: {
-    accent: "#E67E22",
-    text: "#1F3A5F",
-    paper: "#ffffff",
-  },
-  sections: [
-    {
-      id: uid("sec"),
-      type: "summary",
-      title: "Summary",
-      visible: true,
-      data: {
-        text:
-          "Software Engineer with 9+ years of experience designing and delivering innovative software solutions across diverse industries. Proven expertise in leading development teams, driving SaaS product development, and managing multiple projects simultaneously. Skilled in optimizing performance, enhancing efficiency, and solving complex problems through advanced programming, system architecture design, and effective collaboration.",
-      },
-    },
-    {
-      id: uid("sec"),
-      type: "languages",
-      title: "Languages",
-      visible: true,
-      data: {
-        items: [
-          { id: uid("lang"), name: "Cantonese", level: "Native", proficiency: 5 },
-          { id: uid("lang"), name: "Mandarin", level: "Proficient", proficiency: 4 },
-          { id: uid("lang"), name: "English", level: "Advanced", proficiency: 3 },
-        ],
-      },
-    },
-    {
-      id: uid("sec"),
-      type: "skills",
-      title: "Skills & Knowledges",
-      visible: true,
-      data: {
-        groups: [
-          {
-            id: uid("grp"),
-            label: "Programming languages",
-            skills: ["JavaScript", "TypeScript", "Golang", "Python", "Java", "PHP", "Objective C"],
-          },
-          {
-            id: uid("grp"),
-            label: "Frameworks",
-            skills: [
-              "jQuery", "Electron", "React", "React Native", "Expo", "Nest.js",
-              "Gatsby.js", "Angular 4", "Vue.js", "Taro", "CakePHP", "Laravel",
-              "Drupal", "WordPress", "Express.js", "NestJs", "Tailwind.css",
-              "MUI", "Ionic", "Shadcn", "GORM",
-            ],
-          },
-          {
-            id: uid("grp"),
-            label: "Databases",
-            skills: ["MySQL", "PostgreSQL", "DynamoDB", "MongoDB", "Timescale DB", "Redis"],
-          },
-          {
-            id: uid("grp"),
-            label: "Knowledge",
-            skills: [
-              "HTML", "CSS", "Git", "GitHub", "GitHub CI/CD", "GitLab", "GitLab CI/CD",
-              "Monorepo", "Micro Frontend", "Turbo repo", "Web Component", "Postman",
-              "Figma", "Design System", "Storybook", "Docker", "Camunda", "Airflow",
-              "Streamlit", "n8n", "windmill.dev", "sanity.io", "Netlify", "RabbitMQ",
-              "Sentry", "Datadog", "KeyCloak", "Restful", "GraphQL", "Kong", "Linux",
-              "Apache", "Nginx", "MinIO", "WeChat APIs", "Facebook Messager APIs",
-              "AWS", "GCP", "Spec-Driven Development", "Test-Driven Development",
-              "Agentic AI", "Compounding Engineering", "Context Engineering",
-            ],
-          },
-          {
-            id: uid("grp"),
-            label: "Software",
-            skills: [
-              "MS Office", "TablePlus", "DBeaver", "MongoDB Compass", "XCode",
-              "Android Studio", "VSCode", "AnyDesk", "JetBrains IDEs", "Docker Desktop",
-              "1Password", "Ollama", "Amazon Q", "Claude Code", "Gemini", "Open Code",
-            ],
-          },
-        ],
-      },
-    },
-    {
-      id: uid("sec"),
-      type: "expertise",
-      title: "Industry Expertise",
-      visible: true,
-      data: {
-        items: [
-          { id: uid("exp"), label: "Leadership", level: 75 },
-          { id: uid("exp"), label: "Project Management", level: 78 },
-          { id: uid("exp"), label: "Problem Solving", level: 88 },
-          { id: uid("exp"), label: "Communication", level: 55 },
-        ],
-      },
-    },
-    {
-      id: uid("sec"),
-      type: "experience",
-      title: "Experience",
-      visible: true,
-      data: {
-        items: [
-          {
-            id: uid("xp"),
-            title: "Senior Web Developer",
-            company: "The Executive Centre",
-            location: "Wong Chuk Hang, Hong Kong",
-            start: "Present",
-            end: "",
-            description: "<p>The Executive Centre (TEC) is a premium flexible workspace provider, opened its doors in Hong Kong in 1994 and has over 240+ Centres in 37 cities and 15 markets.</p><ul><li>Consistent maintenance and timely updates.</li><li>Boosted development efficiency through integrating AI workflows into the process.</li></ul>",
-            bullets: [],
-          },
-          {
-            id: uid("xp"),
-            title: "Principal Software Engineer",
-            company: "Varadise Limited",
-            location: "Kwun Tong, Hong Kong",
-            start: "04/2025",
-            end: "07/2025",
-            description: "<p>Varadise is a Hong Kong-based AI technology company, founded in 2019, specializing in digital twin solutions and smart construction management. Its <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> platform integrates AI, IoT, and BIM data to enhance project efficiency, safety, and compliance in the construction and smart city sectors.</p><ul><li>Established <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> cross-platform (React &amp; React Native) design system, defining monorepo structure, creating CLI tools for code generation, researching styling solutions, standardizing UI components with documentation, and configuring Storybook and package build pipeline.</li><li>Refactored <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> status-flow pages and workflow backend solo in 1.5 months, implementing conditional actions for form submissions, background deadline countdown, and notifications.</li><li>Developed CLI tools for mobile app builds, enabling customization of app icon, name, and environment, and supporting future CI/CD pipeline automation.</li></ul>",
-            bullets: [],
-          },
-          {
-            id: uid("xp"),
-            title: "Technical Leader (Product Frontend)",
-            company: "Varadise Limited",
-            location: "",
-            start: "05/2024",
-            end: "04/2025",
-            description: "<ul><li>Collaborated on <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> micro-frontend architecture, defining monorepo structure, creating CLI tools for code generation, and setting up Storybook and web-based design system.</li><li>Independently developed a microservices-based workflow and form system prototype for <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> in 1.5 months.</li><li>Conducted code reviews, task distribution, and standardized coding practices with documented guides for team and contributors.</li><li>Contributed to Scrum sprints with task time estimates and provided technical advice to product manager to optimize company objectives.</li></ul>",
-            bullets: [],
-          },
-          {
-            id: uid("xp"),
-            title: "Senior Web Developer",
-            company: "Varadise Limited",
-            location: "",
-            start: "03/2023",
-            end: "05/2024",
-            description: "<ul><li>Built a generic form rendering library and collaborated on a form-workflow backend for DWSS v3, simplifying form creation.</li><li>Solo-developed DWSS v2 frontend in 3 months with global state management and standardized UI, enhancing UX and consistency.</li><li>Created ETL process and automated government report submissions using Airflow for DWSS v2.</li><li>Dockerized DWSS v2 microservice with Docker Compose, streamlining testing and debugging.</li><li>Built CLI tool for legacy DWSS v1, reducing manual data processing time by 80%.</li><li>Improved team processes by standardizing tickets and mentoring junior developers through code reviews and task distribution.</li></ul>",
-            bullets: [],
-          },
-          {
-            id: uid("xp"),
-            title: "Senior Software Engineer",
-            company: "Spaceship HK",
-            location: "Sha Tin, Hong Kong",
-            start: "11/2019",
-            end: "07/2022",
-            description: "<p>Spaceship, Hong Kong-based logistics platform, simplifies e-commerce shipping. Spaceship Pro offers discounted UPS, FedEx, DHL rates for door-to-door delivery in 200+ regions. Tech streamlines order management, tracking, customs, inventory, optimizing operations and cutting costs.</p><ul><li>Enhanced Spaceship's SEO by transitioning from CSR to SSR and optimized APIs by migrating to NestJS for improved efficiency and scalability.</li><li>Collaborated on reusable frontend design system for consistent UI across projects and built a top-ranked cross-platform SaaS app in two months, boosting revenue.</li><li>Migrated company's WordPress site to Gatsby.js with Sanity CMS, improving LCP, SEO, and search visibility via Nginx redirects.</li><li>Led internal tutorials, mentored interns and junior developers, and supported feature development and bug fixing to enhance team collaboration.</li></ul>",
-            bullets: [],
-          },
-          {
-            id: uid("xp"),
-            title: "Web Application Developer",
-            company: "WeMine",
-            location: "Kwun Tong, Hong Kong",
-            start: "01/2018",
-            end: "10/2019",
-            description: "<p>WeMine, founded in 2014, offers chat-based marketing solutions on WeChat, WhatsApp, and Facebook Messenger. Specializing in digital marketing and automation, including the WM:Suite platform, WeMine enhances brand engagement with data-driven strategies and content personalization.</p><ul><li>Revamped <a href=\"https://www.wemine.tech/intelligence\" target=\"_blank\" rel=\"noopener noreferrer\">Intelligence</a> frontend, adding analytics and optimizing performance for enhanced user experience and efficiency.</li><li>Architected standardized API connectors for <a href=\"https://www.wemine.tech/activate\" target=\"_blank\" rel=\"noopener noreferrer\">Activate</a>, enabling seamless WeChat and Facebook Messenger integration.</li><li>Modernized <a href=\"https://www.wemine.tech/engage\" target=\"_blank\" rel=\"noopener noreferrer\">Engage</a>'s legacy frontend with React 16 for a responsive, scalable UI.</li><li>Built WeChat and Facebook Messenger mini programs and campaign sites, boosting client engagement.</li><li>Integrated core product features with campaign mini programs for cohesive, high-impact digital experiences.</li></ul>",
-            bullets: [],
-          },
-          {
-            id: uid("xp"),
-            title: "Web Development Intern",
-            company: "Web-gineer",
-            location: "Lai Chi Kok, Hong Kong",
-            start: "05/2016",
-            end: "12/2017",
-            description: "<p>Webgineer Limited, a Hong Kong agency since 2012, excels in execution and development. We prioritize clarity, aesthetics, and functionality through research and testing, delivering client-focused solutions.</p>",
-            bullets: [],
-          },
-        ],
-      },
-    },
-    {
-      id: uid("sec"),
-      type: "education",
-      title: "Education",
-      visible: true,
-      data: {
-        items: [
-          {
-            id: uid("edu"),
-            degree: "Bachelor of Engineering - BE, Computer Science",
-            school: "The Hong Kong University of Science and Technology",
-            start: "01/2014",
-            end: "12/2018",
-          },
-        ],
-      },
-    },
-    {
-      id: uid("sec"),
-      type: "certifications",
-      title: "Licenses & Certifications",
-      visible: true,
-      data: {
-        items: [
-          { id: uid("crt"), name: "Cloud-Based Lightweight Optimization for WordPress", issuer: "Udemy" },
-          { id: uid("crt"), name: "Gemini Certified Educator", issuer: "Google for Education" },
-          { id: uid("crt"), name: "Software Engineer", issuer: "HackerRank" },
-          { id: uid("crt"), name: "Frontend Developer (React)", issuer: "HackerRank" },
-          { id: uid("crt"), name: "Problem Solving (Intermediate)", issuer: "HackerRank" },
-          { id: uid("crt"), name: "Rest API (Intermediate)", issuer: "HackerRank" },
-          { id: uid("crt"), name: "SQL (Advanced)", issuer: "HackerRank" },
-          { id: uid("crt"), name: "React (Basic)", issuer: "HackerRank" },
-          { id: uid("crt"), name: "JavaScript (Intermediate)", issuer: "HackerRank" },
-          { id: uid("crt"), name: "Node.js (Intermediate)", issuer: "HackerRank" },
-          { id: uid("crt"), name: "Go (Intermediate)", issuer: "HackerRank" },
-          { id: uid("crt"), name: "Python (Basic)", issuer: "HackerRank" },
-          { id: uid("crt"), name: "Java (Basic)", issuer: "HackerRank" },
-          { id: uid("crt"), name: "IIQE Paper I", issuer: "Vocational Training Council" },
-          { id: uid("crt"), name: "IIQE Paper III", issuer: "Vocational Training Council" },
-        ],
-      },
-    },
-    {
-      id: uid("sec"),
-      type: "awards",
-      title: "Honors & Awards",
-      visible: true,
-      data: {
-        items: [
-          {
-            id: uid("awd"),
-            name: "Cyberport Creative Micro Fund (CCMF) Grantee",
-            description:
-              "\"WhatsHulb,\" a fair platform empowering everyone to participate in co-creations and bring creative visions to life, secured HK$100,000 in seed funding from the Cyberport Creative Micro Fund in 2017 to kick-start its innovative idea and develop prototypes.",
-          },
-          {
-            id: uid("awd"),
-            name: "JUPAS Scholarships",
-            description:
-              "HKUST provides a wide variety of scholarships for students who demonstrate exceptional academic accomplishment.",
-          },
-        ],
-      },
-    },
-    {
-      id: uid("sec"),
-      type: "references",
-      title: "References",
-      visible: true,
-      data: {
-        items: [
-          { id: uid("ref"), name: "Tom Tong", role: "Chief Technology Officer @Varadise Limited", contact: "(+852) 6200-5806" },
-          { id: uid("ref"), name: "Chi Lam", role: "Co-Founder & CEO @Spaceship HK", contact: "(+852) 6028-6962" },
-        ],
-      },
-    },
-  ],
+/** Minimal empty resume for the SSR fallback path. */
+export const EMPTY_RESUME: Resume = {
+  version: "2.0.0",
+  header: { name: "", title: "", contacts: [] },
+  theme: { paletteId: DEFAULT_PALETTE_ID },
+  sections: [],
 };
+
+/**
+ * Fetch the default resume JSON shipped at `/default-resume.json`.
+ * Used as the seed when no localStorage data exists and on Reset.
+ */
+export async function loadDefaultResume(): Promise<Resume> {
+  if (typeof fetch === "undefined") return EMPTY_RESUME;
+  try {
+    const res = await fetch("/default-resume.json", { cache: "no-cache" });
+    if (!res.ok) return EMPTY_RESUME;
+    const data = (await res.json()) as Resume;
+    return data;
+  } catch {
+    return EMPTY_RESUME;
+  }
+}
+
 
 // Factories so the "Add section" UI can spawn empty templates safely
 export function createEmptySection(type: SectionType): ResumeSection {

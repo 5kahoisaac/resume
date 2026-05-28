@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -9,6 +9,16 @@
   --paper-height: 1123px;
   --paper-pad-x: 56px;
   --paper-pad-y: 48px;
+
+  /* Theme colors — overridden at runtime by the active palette (see
+     ThemeStyle component, which writes these on :root). Defaults match the
+     "orange-navy" preset so SSR/first-paint look right before hydration. */
+  --accent: #E67E22;
+  --text: #1F3A5F;
+  /* A translucent accent for focus rings / chip backgrounds. We can't do
+     alpha on a hex var cleanly, so we keep a few derived tokens too. */
+  --accent-soft: rgba(230, 126, 34, 0.12);
+  --accent-softer: rgba(230, 126, 34, 0.08);
 }
 
 html,
@@ -64,11 +74,21 @@ body {
 }
 .field-input:focus {
   outline: none;
-  border-color: #E67E22;
+  border-color: var(--accent);
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.12);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 .field-input::placeholder { color: #94a3b8; }
+
+/* Tag chips — themeable */
+.tag-chip {
+  background: var(--accent-soft);
+  color: var(--text);
+  border-color: var(--accent);
+}
+.tag-chip.ring-1 { box-shadow: 0 0 0 2px var(--accent); }
+.tag-chip-x { color: #94a3b8; }
+.tag-chip-x:hover { color: #dc2626; }
 
 textarea.field-input {
   min-height: 96px;
@@ -85,7 +105,7 @@ textarea.field-input {
   transform: scale(0.98);
 }
 .section-card.drag-over {
-  border-color: #E67E22 !important;
+  border-color: var(--accent) !important;
   background: rgba(230, 126, 34, 0.05);
 }
 
@@ -198,7 +218,7 @@ textarea.field-input {
 ---------------------------------------------------------------------------- */
 .resume-link,
 .rich-content a {
-  color: #E67E22;
+  color: var(--accent);
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
@@ -206,7 +226,7 @@ textarea.field-input {
 }
 .resume-link:hover,
 .rich-content a:hover {
-  color: #1F3A5F;
+  color: var(--text);
   text-decoration-color: currentColor;
 }
 

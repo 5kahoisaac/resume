@@ -52,9 +52,12 @@ async function waitForFonts(): Promise<void> {
     '600 16px "Plus Jakarta Sans"',
     '700 16px "Plus Jakarta Sans"',
     'italic 400 16px "Plus Jakarta Sans"',
+    'italic 600 16px "Plus Jakarta Sans"',
+    'italic 700 16px "Plus Jakarta Sans"',
     '400 16px "Fraunces"',
     '600 16px "Fraunces"',
     '700 16px "Fraunces"',
+    'italic 400 16px "Fraunces"',
     '400 16px "JetBrains Mono"',
   ];
   try {
