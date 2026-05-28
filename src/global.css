@@ -15,10 +15,44 @@
      "orange-navy" preset so SSR/first-paint look right before hydration. */
   --accent: #E67E22;
   --text: #1F3A5F;
+  --accent-rgb: 230, 126, 34;
+  --text-rgb: 31, 58, 95;
   /* A translucent accent for focus rings / chip backgrounds. We can't do
      alpha on a hex var cleanly, so we keep a few derived tokens too. */
   --accent-soft: rgba(230, 126, 34, 0.12);
   --accent-softer: rgba(230, 126, 34, 0.08);
+  --text-soft: rgba(31, 58, 95, 0.08);
+  --text-muted: rgba(31, 58, 95, 0.68);
+  --theme-rule: rgba(31, 58, 95, 0.14);
+}
+
+/* Runtime theme bridge — Tailwind classes are static, so the active resume
+   palette must override shared chrome utilities through CSS variables. */
+.text-brand-navy { color: var(--text) !important; }
+.text-brand-slate { color: var(--text-muted) !important; }
+.text-brand-orange,
+.hover\:text-brand-orange:hover,
+.group:hover .group-hover\:text-brand-orange { color: var(--accent) !important; }
+.bg-brand-navy { background-color: var(--text) !important; }
+.hover\:bg-brand-navy\/90:hover { background-color: rgba(var(--text-rgb), 0.9) !important; }
+.bg-brand-orange { background-color: var(--accent) !important; }
+.bg-brand-orange\/5,
+.hover\:bg-brand-orange\/5:hover { background-color: rgba(var(--accent-rgb), 0.05) !important; }
+.bg-brand-orange\/10 { background-color: rgba(var(--accent-rgb), 0.1) !important; }
+.group:hover .group-hover\:bg-brand-orange\/15 { background-color: rgba(var(--accent-rgb), 0.15) !important; }
+.hover\:bg-brand-orange\/90:hover { background-color: rgba(var(--accent-rgb), 0.9) !important; }
+.bg-brand-mist,
+.hover\:bg-brand-mist:hover { background-color: var(--text-soft) !important; }
+.border-brand-rule { border-color: var(--theme-rule) !important; }
+.border-brand-orange,
+.hover\:border-brand-orange:hover,
+.focus\:border-brand-orange:focus { border-color: var(--accent) !important; }
+.hover\:border-brand-orange\/30:hover { border-color: rgba(var(--accent-rgb), 0.3) !important; }
+.accent-brand-orange { accent-color: var(--accent) !important; }
+.from-brand-orange\/5 {
+  --tw-gradient-from: rgba(var(--accent-rgb), 0.05) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgba(var(--accent-rgb), 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
 html,
@@ -64,11 +98,11 @@ body {
 /* Editor input baseline — feels like writing on a notecard */
 .field-input {
   background: rgba(255, 255, 255, 0.6);
-  border: 1px solid #E5E9F0;
+  border: 1px solid var(--theme-rule);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 13.5px;
-  color: #1F3A5F;
+  color: var(--text);
   transition: all 0.18s ease;
   width: 100%;
 }
@@ -78,7 +112,7 @@ body {
   background: #ffffff;
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
-.field-input::placeholder { color: #94a3b8; }
+.field-input::placeholder { color: var(--text-muted); }
 
 /* Tag chips — themeable */
 .tag-chip {
@@ -87,7 +121,7 @@ body {
   border-color: var(--accent);
 }
 .tag-chip.ring-1 { box-shadow: 0 0 0 2px var(--accent); }
-.tag-chip-x { color: #94a3b8; }
+.tag-chip-x { color: var(--text-muted); }
 .tag-chip-x:hover { color: #dc2626; }
 
 textarea.field-input {
@@ -106,7 +140,7 @@ textarea.field-input {
 }
 .section-card.drag-over {
   border-color: var(--accent) !important;
-  background: rgba(230, 126, 34, 0.05);
+  background: rgba(var(--accent-rgb), 0.05);
 }
 
 /* Preview specific — keeps the page true-to-print.
@@ -259,7 +293,7 @@ textarea.field-input {
   left: 0;
   top: 0;
   width: 8px;
-  color: #1F3A5F;
+  color: var(--text);
   font-size: 1em;
   line-height: 1.55;
 }
@@ -270,29 +304,36 @@ textarea.field-input {
   margin-bottom: 2px;
 }
 .rich-content strong,
-.rich-content b {
-  font-weight: 700;
+.rich-content b,
+.rich-content [style*="font-weight: bold"],
+.rich-content [style*="font-weight: 700"] {
+  font-weight: 700 !important;
 }
 .rich-content em,
-.rich-content i {
-  font-style: italic;
+.rich-content i,
+.rich-content [style*="font-style: italic"] {
+  font-style: italic !important;
 }
-.rich-content u {
-  text-decoration: underline;
+.rich-content u,
+.rich-content [style*="text-decoration: underline"],
+.rich-content [style*="text-decoration-line: underline"] {
+  text-decoration-line: underline !important;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 2px;
 }
 
 /* TinyMCE editor: tighten the surrounding frame so the editor doesn't look
    stranded on the editor pane. The iframe inside handles its own styles. */
 .rich-text-editor tinymce-editor {
   display: block;
-  border: 1px solid #E5E9F0;
+  border: 1px solid var(--theme-rule);
   border-radius: 8px;
   overflow: hidden;
   background: white;
 }
 .rich-text-editor tinymce-editor:focus-within {
-  border-color: #E67E22;
-  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.12);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 .rich-text-mount:empty {
   display: none;

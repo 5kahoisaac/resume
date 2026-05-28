@@ -135,7 +135,7 @@ export const RichTextEditor = component$<Props>((props) => {
     );
     editor.setAttribute(
       "content_style",
-      `body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13.5px; color: ${props.text ?? "#1F3A5F"}; line-height: 1.55; padding: 6px 10px; } a { color: ${props.accent ?? "#E67E22"}; text-decoration: underline; } strong, b { font-weight: 700; } em, i { font-style: italic; }`,
+      `body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13.5px; color: ${props.text ?? "#1F3A5F"}; line-height: 1.55; padding: 6px 10px; } a { color: ${props.accent ?? "#E67E22"}; text-decoration: underline; } strong, b { font-weight: 700; } em, i { font-style: italic; } u, span[style*='text-decoration'] { text-decoration-line: underline; text-underline-offset: 2px; }`,
     );
     editor.setAttribute("link_default_target", "_blank");
     editor.setAttribute("link_default_protocol", "https");

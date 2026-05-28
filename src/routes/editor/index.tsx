@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import { routeLoader$, type DocumentHead, Form, Link } from "@builder.io/qwik-city";
 import { ResumeApp } from "~/components/ResumeApp";
+import { StoredThemeStyle } from "~/components/ThemeStyle";
 import { isAuthed, loginAction, logoutAction } from "~/utils/auth";
 
 /**
@@ -26,6 +27,7 @@ export default component$(() => {
   if (!auth.value.authed) {
     return (
       <div class="min-h-screen bg-brand-mist flex items-center justify-center p-6">
+        <StoredThemeStyle />
         <div class="w-full max-w-sm bg-white rounded-2xl shadow-paper border border-brand-rule p-7">
           <div class="flex items-center gap-2.5 mb-5">
             <div class="h-9 w-9 rounded-lg bg-brand-orange flex items-center justify-center font-display font-bold text-white">R</div>

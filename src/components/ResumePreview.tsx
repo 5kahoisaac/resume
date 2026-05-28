@@ -413,7 +413,7 @@ const ExperienceEntry = component$<{ item: ExperienceItem; accent: string; text:
 );
 
 const EducationBlock = component$<{ items: EducationItem[]; accent: string; text: string }>(
-  ({ items, text }) => (
+  ({ items, text, accent }) => (
     <div class="space-y-3">
       {items.map((e) => (
         <div key={e.id} class="flex">
@@ -440,7 +440,7 @@ const EducationBlock = component$<{ items: EducationItem[]; accent: string; text
             <div class="font-sans" style={{ fontSize: "10.5pt", opacity: 0.92 }}>
               {e.degree}
             </div>
-            <div class="font-sans font-bold" style={{ fontSize: "10.5pt" }}>
+            <div class="font-sans font-bold" style={{ fontSize: "10.5pt", color: accent }}>
               {e.school}
             </div>
           </div>

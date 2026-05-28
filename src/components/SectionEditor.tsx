@@ -37,15 +37,17 @@ export const SectionEditor = component$<Props>((props) => {
   const { section } = props;
 
   // Push a new section object upstream with a shallow-merged `data` field.
+  // Read through props.section inside the QRL so editor callbacks always patch
+  // the latest proxy state instead of a stale render snapshot.
   const patchData = $((patch: Record<string, unknown>) => {
     props.onUpdate$({
-      ...section,
-      data: { ...section.data, ...patch },
+      ...props.section,
+      data: { ...props.section.data, ...patch },
     } as ResumeSection);
   });
 
   const renameTitle = $((value: string) => {
-    props.onUpdate$({ ...section, title: value } as ResumeSection);
+    props.onUpdate$({ ...props.section, title: value } as ResumeSection);
   });
 
   return (

@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import { PALETTES, DEFAULT_PALETTE_ID, type Resume } from "~/data/resume";
 
 /** Convert #RRGGBB → "r, g, b" for use in rgba(). */
@@ -30,6 +30,25 @@ export function resolveTheme(resume: Resume): { accent: string; text: string } {
  */
 export const ThemeStyle = component$<{ accent: string; text: string }>(({ accent, text }) => {
   const accentRgb = hexToRgb(accent);
-  const css = `:root{--accent:${accent};--text:${text};--accent-soft:rgba(${accentRgb},0.12);--accent-softer:rgba(${accentRgb},0.08);}`;
+  const textRgb = hexToRgb(text);
+  const css = `:root{--accent:${accent};--text:${text};--accent-rgb:${accentRgb};--text-rgb:${textRgb};--accent-soft:rgba(${accentRgb},0.12);--accent-softer:rgba(${accentRgb},0.08);--text-soft:rgba(${textRgb},0.08);--text-muted:rgba(${textRgb},0.68);--theme-rule:rgba(${textRgb},0.14);}`;
   return <style dangerouslySetInnerHTML={css} />;
+});
+
+export const StoredThemeStyle = component$(() => {
+  const theme = useSignal(resolveTheme({ version: "2.0.0", header: { name: "", title: "", contacts: [] }, sections: [], theme: { paletteId: DEFAULT_PALETTE_ID } }));
+
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(() => {
+    const raw = window.localStorage.getItem("qwik-resume-editor:v2");
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as Pick<Resume, "theme">;
+      theme.value = resolveTheme({ version: "2.0.0", header: { name: "", title: "", contacts: [] }, sections: [], theme: parsed.theme });
+    } catch {
+      // Keep the default palette if the stored resume is not parseable.
+    }
+  });
+
+  return <ThemeStyle accent={theme.value.accent} text={theme.value.text} />;
 });

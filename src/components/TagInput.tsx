@@ -1,4 +1,4 @@
-import { component$, useSignal, $, type QRL } from "@builder.io/qwik";
+import { component$, useSignal, useTask$, $, type QRL } from "@builder.io/qwik";
 
 // ============================================================================
 // TagInput — chip-style multi-value input.
@@ -25,8 +25,18 @@ interface Props {
 }
 
 export const TagInput = component$<Props>(({ values, onChange$, placeholder }) => {
+  const tags = useSignal<string[]>(values.slice());
   const dragIndex = useSignal<number | null>(null);
   const dragOverIndex = useSignal<number | null>(null);
+
+  useTask$(({ track }) => {
+    tags.value = track(() => values).slice();
+  });
+
+  const commit$ = $(async (next: string[]) => {
+    tags.value = next;
+    await onChange$(next);
+  });
 
   return (
     <div
@@ -35,25 +45,35 @@ export const TagInput = component$<Props>(({ values, onChange$, placeholder }) =
         el.querySelector<HTMLInputElement>("input.tag-input-field")?.focus();
       }}
     >
-      {values.map((v, idx) => (
+      {tags.value.map((v, idx) => (
         <span
           key={`${v}-${idx}`}
           draggable={true}
-          preventdefault:dragover
           onDragStart$={(ev) => {
             dragIndex.value = idx;
-            try { (ev as DragEvent).dataTransfer?.setData("text/plain", String(idx)); } catch { /* noop */ }
+            const transfer = (ev as DragEvent).dataTransfer;
+            if (transfer) {
+              transfer.effectAllowed = "move";
+              transfer.setData("text/plain", String(idx));
+            }
           }}
-          onDragOver$={() => { dragOverIndex.value = idx; }}
-          onDrop$={() => {
-            const from = dragIndex.value;
+          onDragOver$={(ev) => {
+            ev.preventDefault();
+            const transfer = (ev as DragEvent).dataTransfer;
+            if (transfer) transfer.dropEffect = "move";
+            dragOverIndex.value = idx;
+          }}
+          onDrop$={async (ev) => {
+            ev.preventDefault();
+            const transferValue = (ev as DragEvent).dataTransfer?.getData("text/plain");
+            const from = dragIndex.value ?? (transferValue ? Number(transferValue) : null);
             dragIndex.value = null;
             dragOverIndex.value = null;
-            if (from === null || from === idx) return;
-            const next = values.slice();
+            if (from === null || Number.isNaN(from) || from === idx) return;
+            const next = tags.value.slice();
             const [moved] = next.splice(from, 1);
             next.splice(idx, 0, moved);
-            onChange$(next);
+            await commit$(next);
           }}
           onDragEnd$={() => { dragIndex.value = null; dragOverIndex.value = null; }}
           class={[
@@ -66,9 +86,9 @@ export const TagInput = component$<Props>(({ values, onChange$, placeholder }) =
             type="button"
             aria-label={`Remove ${v}`}
             class="tag-chip-x -mr-0.5"
-            onClick$={(ev) => {
+            onClick$={async (ev) => {
               ev.stopPropagation();
-              onChange$(values.filter((_, i) => i !== idx));
+              await commit$(tags.value.filter((_, i) => i !== idx));
             }}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round">
@@ -81,44 +101,44 @@ export const TagInput = component$<Props>(({ values, onChange$, placeholder }) =
       <input
         type="text"
         class="tag-input-field flex-1 min-w-[120px] bg-transparent outline-none text-[13px] py-0.5"
-        placeholder={values.length === 0 ? (placeholder ?? "Type a tag, press Enter") : ""}
-        onKeyDown$={(ev, el) => {
+        placeholder={tags.value.length === 0 ? (placeholder ?? "Type a tag, press Enter") : ""}
+        onKeyDown$={async (ev, el) => {
           const input = el as HTMLInputElement;
           const key = (ev as KeyboardEvent).key;
           if (key === "Enter" || key === "Tab") {
+            ev.preventDefault();
             const raw = input.value.trim();
             if (!raw) return;
-            ev.preventDefault();
             input.value = "";
             const parts = raw.split(",").map((s) => s.trim()).filter(Boolean);
-            const next = values.slice();
+            const next = tags.value.slice();
             for (const p of parts) if (!next.includes(p)) next.push(p);
-            onChange$(next);
-          } else if (key === "Backspace" && input.value === "" && values.length > 0) {
+            await commit$(next);
+          } else if (key === "Backspace" && input.value === "" && tags.value.length > 0) {
             ev.preventDefault();
-            onChange$(values.slice(0, -1));
+            await commit$(tags.value.slice(0, -1));
           }
         }}
-        onInput$={(_, el) => {
+        onInput$={async (_, el) => {
           // auto-commit when the user types a comma
           const input = el as HTMLInputElement;
           if (input.value.includes(",")) {
             const parts = input.value.split(",").map((s) => s.trim()).filter(Boolean);
             input.value = "";
             if (parts.length === 0) return;
-            const next = values.slice();
+            const next = tags.value.slice();
             for (const p of parts) if (!next.includes(p)) next.push(p);
-            onChange$(next);
+            await commit$(next);
           }
         }}
-        onBlur$={(_, el) => {
+        onBlur$={async (_, el) => {
           const input = el as HTMLInputElement;
           const raw = input.value.trim();
           if (!raw) return;
           input.value = "";
-          const next = values.slice();
+          const next = tags.value.slice();
           if (!next.includes(raw)) next.push(raw);
-          onChange$(next);
+          await commit$(next);
         }}
       />
     </div>
