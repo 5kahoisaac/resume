@@ -1,7 +1,21 @@
-import { createQwikCity } from "@builder.io/qwik-city/middleware/netlify-edge";
+/*
+ * WHAT IS THIS FILE?
+ *
+ * It's the entry point for Netlify Edge when building for production.
+ *
+ * Learn more about the Netlify integration here:
+ * - https://qwik.dev/docs/deployments/netlify-edge/
+ *
+ */
+import {
+  createQwikCity,
+  type PlatformNetlify,
+} from "@builder.io/qwik-city/middleware/netlify-edge";
 import qwikCityPlan from "@qwik-city-plan";
 import render from "./entry.ssr";
 
-// Netlify Edge Functions invoke the module's DEFAULT export as the handler.
-// createQwikCity returns the (request, context) => Response handler.
+declare global {
+  type QwikCityPlatform = PlatformNetlify;
+}
+
 export default createQwikCity({ render, qwikCityPlan });
