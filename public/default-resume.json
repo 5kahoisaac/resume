@@ -83,8 +83,7 @@
               "Golang",
               "Python",
               "Java",
-              "PHP",
-              "Objective C"
+              "PHP"
             ]
           },
           {
@@ -95,7 +94,6 @@
               "jQuery",
               "React",
               "React Native",
-              "Expo",
               "Nest.js",
               "Gatsby.js",
               "Angular 4",
@@ -130,19 +128,14 @@
             "id": "id_10",
             "label": "Knowledge",
             "skills": [
-              "HTML",
-              "CSS",
               "Git",
               "GitHub",
-              "GitHub CI/CD",
+              "GitHub Actions",
               "GitLab",
               "GitLab CI/CD",
               "Monorepo",
               "Micro Frontend",
-              "Turbo repo",
               "Web Component",
-              "Postman",
-              "Figma",
               "Design System",
               "Storybook",
               "Docker",
@@ -151,6 +144,7 @@
               "Streamlit",
               "n8n",
               "windmill.dev",
+              "PayloadCMS",
               "sanity.io",
               "Netlify",
               "RabbitMQ",
@@ -168,11 +162,9 @@
               "Facebook Messager APIs",
               "AWS",
               "GCP",
-              "Spec-Driven Development",
               "Context Engineering",
-              "Test-Driven Development",
-              "Agentic AI",
-              "Compounding Engineering"
+              "Spec-Driven Development",
+              "Test-Driven Development"
             ]
           },
           {
@@ -180,22 +172,22 @@
             "label": "Software",
             "skills": [
               "MS Office",
-              "TablePlus",
+              "Postman",
+              "Figma",
               "DBeaver",
               "MongoDB Compass",
               "XCode",
               "Android Studio",
               "VSCode",
-              "AnyDesk",
               "JetBrains IDEs",
-              "Docker Desktop",
+              "Docker",
               "1Password",
               "Ollama",
               "Kiro",
-              "Claude Code",
-              "Gemini",
-              "Open Code",
+              "Claude",
               "Codex",
+              "Gemini",
+              "OpenCode",
               "oMLX"
             ]
           }
@@ -484,8 +476,8 @@
         "items": [
           {
             "id": "id_44",
-            "name": "Cyberport Creative Micro Fund (CCMF) Grantee",
-            "description": "\"WhatsHulb,\" a fair platform empowering everyone to participate in co-creations and bring creative visions to life, secured HK$100,000 in seed funding from the Cyberport Creative Micro Fund in 2017 to kick-start its innovative idea and develop prototypes."
+            "name": "Cyberport Creative Micro Fund Grantee",
+            "description": "\"WhatsHulb,\" is a fair co-creation platform that empowers anyone to turn creative visions into reality. It secured HK$100,000 in seed funding from the Cyberport Creative Micro Fund in 2017."
           },
           {
             "id": "id_45",
