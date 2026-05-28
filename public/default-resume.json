@@ -13,14 +13,14 @@
       {
         "id": "c_2",
         "type": "url",
-        "label": "https://isaac.ng",
-        "href": "Portfolio"
+        "label": "Portfolio",
+        "href": "https://isaac.ng"
       },
       {
         "id": "c_3",
         "type": "url",
-        "label": "https://www.linkedin.com/in/isaac-ng-573851159/",
-        "href": "LinkedIn"
+        "label": "LinkedIn",
+        "href": "https://www.linkedin.com/in/isaac-ng-573851159/"
       },
       {
         "id": "c_4",
