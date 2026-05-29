@@ -102,10 +102,27 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
     store.resume.theme = stored.theme;
     store.hydrated = true;
 
-    // Set zoom by device class: mobile (<768px) → 50%, tablet/desktop → 80%.
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
-      zoom.value = 0.5;
+    // Set zoom by breakpoint on mount:
+    //   <768px  (mobile)          → 50%
+    //   768–991px (tablet)        → 80%  (signal default)
+    //   ≥992px  (desktop)         → 120%
+    if (typeof window !== "undefined") {
+      if (window.innerWidth < 768) {
+        zoom.value = 0.5;
+      } else if (window.innerWidth >= 992) {
+        zoom.value = 1.2;
+      }
     }
+
+    // On resize: enforce the same caps so zooming in/out doesn't leave the
+    // preview cropped on mobile or tiny on a large screen.
+    const onResize = () => {
+      if (window.innerWidth < 768 && zoom.value > 0.5) {
+        zoom.value = 0.5;
+      }
+    };
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => window.removeEventListener("resize", onResize);
   });
 
   // Persist on every meaningful change. The `hydrated` gate prevents us from
