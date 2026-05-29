@@ -88,6 +88,41 @@ function resolveTinyMceApiKey(): string {
   return "no-api-key";
 }
 
+/** Fallback theme colours when no palette override is passed (mirror the
+ *  "orange-navy" preset so first paint matches the resume defaults). */
+const DEFAULT_TEXT = "#1F3A5F";
+const DEFAULT_ACCENT = "#E67E22";
+
+/** The themeable slice of the editor's iframe CSS — body text colour and link
+ *  colour. Kept separate from the structural content style so it can be
+ *  re-applied live when the palette changes. */
+function themeContentCss(accent?: string, text?: string): string {
+  return `body { color: ${text ?? DEFAULT_TEXT}; } a { color: ${accent ?? DEFAULT_ACCENT}; text-decoration: underline; }`;
+}
+
+/**
+ * Inject (or update) a managed <style> element inside the editor's iframe
+ * document so theme changes take effect WITHOUT remounting the editor (a
+ * remount would discard the caret position and undo history). TinyMCE's
+ * `content_style` is only read at init, so runtime palette switches need this.
+ */
+function applyThemeStyle(ed: any, accent?: string, text?: string): void {
+  try {
+    const doc = ed?.getDoc?.();
+    if (!doc || !doc.head) return;
+    let styleEl = doc.getElementById("rf-theme-style") as HTMLStyleElement | null;
+    if (!styleEl) {
+      const created = doc.createElement("style") as HTMLStyleElement;
+      created.id = "rf-theme-style";
+      doc.head.appendChild(created);
+      styleEl = created;
+    }
+    styleEl.textContent = themeContentCss(accent, text);
+  } catch {
+    /* iframe not ready or editor torn down — ignore */
+  }
+}
+
 interface Props {
   value: string;
   onChange$: QRL<(html: string) => void>;
@@ -135,7 +170,7 @@ export const RichTextEditor = component$<Props>((props) => {
     );
     editor.setAttribute(
       "content_style",
-      `body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13.5px; color: ${props.text ?? "#1F3A5F"}; line-height: 1.55; padding: 6px 10px; } a { color: ${props.accent ?? "#E67E22"}; text-decoration: underline; } strong, b { font-weight: 700; } em, i { font-style: italic; } u, span[style*='text-decoration'] { text-decoration-line: underline; text-underline-offset: 2px; }`,
+      `body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13.5px; color: ${props.text ?? DEFAULT_TEXT}; line-height: 1.55; padding: 6px 10px; } a { color: ${props.accent ?? DEFAULT_ACCENT}; text-decoration: underline; } strong, b { font-weight: 700; } em, i { font-style: italic; } u, span[style*='text-decoration'] { text-decoration-line: underline; text-underline-offset: 2px; }`,
     );
     editor.setAttribute("link_default_target", "_blank");
     editor.setAttribute("link_default_protocol", "https");
@@ -188,9 +223,13 @@ export const RichTextEditor = component$<Props>((props) => {
         // SetContent for paste/undo; NodeChange for caret moves).
         ed.on(CHANGE_EVENTS, emit);
         ed.on("blur", emit);
+        // Apply theme colors now (init) and expose a method for live updates.
+        applyThemeStyle(ed, props.accent, props.text);
         editorRef.value = noSerialize({
           getContent: () => (ed ? ed.getContent() : ""),
           setContent: (html: string) => ed && ed.setContent(html),
+          applyTheme: (accent: string | undefined, text: string | undefined) =>
+            applyThemeStyle(ed, accent, text),
         } as any);
         ready.value = true;
         return;
@@ -215,6 +254,17 @@ export const RichTextEditor = component$<Props>((props) => {
         /* ignore */
       }
     });
+  });
+
+  // Live theme sync: re-inject the link/body colours into the editor iframe
+  // whenever the parent's palette changes. `content_style` is only read at
+  // TinyMCE init, so we push updates via a managed <style> tag.
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useTask$(({ track }) => {
+    const accent = track(() => props.accent);
+    const text = track(() => props.text);
+    if (!ready.value || !editorRef.value) return;
+    (editorRef.value as any).applyTheme?.(accent, text);
   });
 
   // External value sync: if the parent replaces `value` with something

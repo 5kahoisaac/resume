@@ -39,7 +39,7 @@
       "title": "Summary",
       "visible": true,
       "data": {
-        "text": "Software Engineer with 9+ years of experience designing and delivering innovative software solutions across diverse industries. Proven expertise in leading development teams, driving SaaS product development, and managing multiple projects simultaneously. Skilled in optimizing performance, enhancing efficiency, and solving complex problems through advanced programming, system architecture design, and effective collaboration."
+        "text": "<p>Software Engineer with <strong>9+</strong> years of experience designing and delivering innovative software solutions across diverse industries.</p>\n<p>Proven expertise in leading development teams, driving SaaS product development, and managing multiple projects simultaneously. Skilled in optimizing performance, enhancing efficiency, and solving complex problems through advanced programming, system architecture design, and effective collaboration.</p>"
       }
     },
     {
@@ -334,14 +334,19 @@
             "issuer": "Meta"
           },
           {
+            "id": "crt_atrkyp5",
+            "name": "Microsoft IT Support Specialist Professional Certificate",
+            "issuer": "Microsoft"
+          },
+          {
             "id": "crt_pkquf0l",
             "name": "AWS Generative AI Applications",
             "issuer": "AWS"
           },
           {
-            "id": "crt_atrkyp5",
-            "name": "Microsoft IT Support Specialist Professional Certificate",
-            "issuer": "Microsoft"
+            "id": "crt_njm70sq",
+            "name": "Real-World AI for Everyone",
+            "issuer": "Anthropic"
           },
           {
             "id": "crt_6getowv",
@@ -354,19 +359,13 @@
             "issuer": "Anthropic"
           },
           {
-            "id": "crt_njm70sq",
-            "name": "Real-World AI for Everyone",
+            "id": "crt_g1bqblf",
+            "name": "Introduction to Model Context Protocol",
             "issuer": "Anthropic"
           },
-
           {
             "id": "crt_rh5fy84",
             "name": "Model Context Protocol: Advanced Topics",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_g1bqblf",
-            "name": "Introduction to Model Context Protocol",
             "issuer": "Anthropic"
           },
           {
@@ -375,13 +374,13 @@
             "issuer": "Anthropic"
           },
           {
-            "id": "crt_aj3zsut",
-            "name": "Google AI Essentials",
+            "id": "crt_a6p2fkm",
+            "name": "Google AI",
             "issuer": "Google"
           },
           {
-            "id": "crt_a6p2fkm",
-            "name": "Google AI",
+            "id": "crt_aj3zsut",
+            "name": "Google AI Essentials",
             "issuer": "Google"
           },
           {
@@ -390,14 +389,14 @@
             "issuer": "Google"
           },
           {
-            "id": "id_28",
-            "name": "Cloud-Based Lightweight Optimization for WordPress",
-            "issuer": "Udemy"
-          },
-          {
             "id": "id_29",
             "name": "Gemini Certified Educator",
             "issuer": "Google for Education"
+          },
+          {
+            "id": "id_28",
+            "name": "Cloud-Based Lightweight Optimization for WordPress",
+            "issuer": "Udemy"
           },
           {
             "id": "id_30",
