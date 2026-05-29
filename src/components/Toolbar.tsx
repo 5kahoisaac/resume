@@ -27,7 +27,7 @@ export const Toolbar = component$<Props>((props) => {
 
   return (
     <header class="no-print sticky top-0 z-30 border-b border-brand-rule bg-white/80 backdrop-blur-md">
-      <div class="flex items-center gap-3 px-5 py-3">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 sm:px-5 py-2.5 sm:py-3">
         {/* Brand mark */}
         <div class="flex items-center gap-2.5 mr-1">
           <div
@@ -132,17 +132,18 @@ export const Toolbar = component$<Props>((props) => {
 
         <div class="h-6 w-px bg-brand-rule" />
 
-        {/* Zoom control — RIGHT side, slider immediately left of the % readout */}
+        {/* Zoom control — RIGHT side, slider immediately left of the % readout.
+            Slider narrows on small screens so it never forces overflow. */}
         <div class="flex items-center gap-2 text-brand-slate">
-          <span class="font-mono text-[11px] uppercase tracking-wider">Zoom</span>
+          <span class="font-mono text-[11px] uppercase tracking-wider hidden sm:inline">Zoom</span>
           <input
             type="range"
-            min="0.4"
+            min="0.3"
             max="1.2"
             step="0.05"
             value={props.zoom.value}
             onInput$={(_, el) => (props.zoom.value = Number((el as HTMLInputElement).value))}
-            class="accent-brand-orange w-32"
+            class="accent-brand-orange w-20 sm:w-32"
             aria-label="Zoom level"
           />
           <span class="font-mono text-xs w-10 text-right tabular-nums">

@@ -303,19 +303,32 @@ textarea.field-input {
 .rich-content li {
   margin-bottom: 2px;
 }
+/* Bold / italic / underline must survive whatever TinyMCE emits — that's
+   either a semantic tag (<strong>/<em>/<u>) OR an inline style, and the inline
+   style may or may not have a space after the colon depending on the browser's
+   serializer. We match every variant so the preview AND the html2canvas PDF
+   (which reads computed styles) both render the formatting. */
 .rich-content strong,
 .rich-content b,
+.rich-content [style*="font-weight:bold"],
 .rich-content [style*="font-weight: bold"],
-.rich-content [style*="font-weight: 700"] {
+.rich-content [style*="font-weight:700"],
+.rich-content [style*="font-weight: 700"],
+.rich-content [style*="font-weight:600"],
+.rich-content [style*="font-weight: 600"] {
   font-weight: 700 !important;
 }
 .rich-content em,
 .rich-content i,
+.rich-content [style*="font-style:italic"],
 .rich-content [style*="font-style: italic"] {
   font-style: italic !important;
 }
 .rich-content u,
+.rich-content ins,
+.rich-content [style*="text-decoration:underline"],
 .rich-content [style*="text-decoration: underline"],
+.rich-content [style*="text-decoration-line:underline"],
 .rich-content [style*="text-decoration-line: underline"] {
   text-decoration-line: underline !important;
   text-decoration-thickness: from-font;

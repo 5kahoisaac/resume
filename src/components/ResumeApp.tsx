@@ -9,6 +9,7 @@ import {
   noSerialize,
   Slot,
   type NoSerialize,
+  type QRL,
 } from "@builder.io/qwik";
 
 import {
@@ -51,6 +52,10 @@ import { ThemeStyle } from "~/components/ThemeStyle";
 // (e.g. "Edit" / "Log out").
 // ============================================================================
 
+/** A4 paper width at 96dpi — mirrors `--paper-width` in global.css. Used to
+ *  compute a fit-to-width zoom on small screens. */
+const PAPER_WIDTH_PX = 794;
+
 interface PageStore {
   resume: Resume;
   draggedIndex: number | null;
@@ -79,6 +84,9 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
 
   const zoom = useSignal(0.8);
   const isExporting = useSignal(false);
+  // On mobile the editor and preview can't sit side-by-side, so we show one at
+  // a time behind a tab toggle. Ignored at `lg` and up (both panes show).
+  const mobileView = useSignal<"edit" | "preview">(canEdit ? "edit" : "preview");
   const toastTimer = useSignal<NoSerialize<ReturnType<typeof setTimeout>> | undefined>(undefined);
 
   // ---- Lifecycle ----------------------------------------------------------
@@ -93,18 +101,33 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
     store.resume.sections = stored.sections;
     store.resume.theme = stored.theme;
     store.hydrated = true;
+
+    // On phones/tablets the 794px A4 page is wider than the viewport, so the
+    // default 80% zoom would crop horizontally. Fit the page to the available
+    // width (minus a little gutter) so the whole resume is visible.
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      const fit = (window.innerWidth - 32) / PAPER_WIDTH_PX;
+      zoom.value = Math.max(0.3, Math.min(1, fit));
+    }
   });
 
   // Persist on every meaningful change. The `hydrated` gate prevents us from
   // overwriting saved data with the SSR fallback on first render.
-  useTask$(({ track }) => {
+  //
+  // The write is DEBOUNCED: the store mutation that drives the live preview has
+  // already happened synchronously by the time this task runs, so the preview
+  // updates instantly. Only the (relatively expensive) JSON.stringify +
+  // localStorage write is throttled, which keeps fast typing smooth instead of
+  // serializing the entire resume on every keystroke.
+  useTask$(({ track, cleanup }) => {
     track(() => store.resume);
     track(() => store.resume.sections);
     track(() => store.resume.header);
     track(() => store.resume.theme);
     track(() => store.hydrated);
     if (!store.hydrated) return;
-    saveResume(store.resume);
+    const timer = setTimeout(() => saveResume(store.resume), 400);
+    cleanup(() => clearTimeout(timer));
   });
 
   // ---- Helpers ------------------------------------------------------------
@@ -262,7 +285,7 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
   });
 
   return (
-    <div class="min-h-screen bg-brand-mist text-brand-navy flex flex-col">
+    <div class="h-[100dvh] overflow-hidden bg-brand-mist text-brand-navy flex flex-col">
       <ThemeStyle accent={themeColors.value.accent} text={themeColors.value.text} />
       <Toolbar
         zoom={zoom}
@@ -278,11 +301,26 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
         <Slot name="actions" />
       </Toolbar>
 
+      {/* Mobile-only Edit / Preview switch — two full-height scroll panes can't
+          share a phone screen, so we toggle between them. Hidden at lg+, where
+          both panes render side-by-side. Only shown when editing is possible. */}
+      {canEdit && (
+        <div class="no-print lg:hidden flex shrink-0 border-b border-brand-rule bg-white">
+          <MobileTab label="Edit" active={mobileView.value === "edit"} onClick$={$(() => (mobileView.value = "edit"))} />
+          <MobileTab label="Preview" active={mobileView.value === "preview"} onClick$={$(() => (mobileView.value = "preview"))} />
+        </div>
+      )}
+
       <main class="flex-1 flex flex-col lg:flex-row min-h-0">
         {/* ---- EDITOR PANE (only when canEdit) ---- */}
         {canEdit && (
-        <section class="no-print w-full lg:w-[44%] xl:w-[40%] border-r border-brand-rule bg-white">
-          <div class="h-[calc(100vh-57px)] overflow-y-auto editor-scroll">
+        <section
+          class={[
+            "no-print w-full lg:w-[44%] xl:w-[40%] border-r border-brand-rule bg-white flex-col min-h-0 lg:flex",
+            mobileView.value === "edit" ? "flex" : "hidden",
+          ].join(" ")}
+        >
+          <div class="flex-1 min-h-0 overflow-y-auto editor-scroll">
             <div class="max-w-3xl mx-auto px-6 pt-8 pb-12 space-y-4">
               <div class="flex items-center justify-between">
                 <div>
@@ -341,7 +379,12 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
         )}
 
         {/* ---- PREVIEW PANE ---- */}
-        <section class="flex-1 bg-brand-mist relative overflow-hidden">
+        <section
+          class={[
+            "flex-1 bg-brand-mist relative overflow-hidden flex-col min-h-0 lg:flex",
+            mobileView.value === "preview" ? "flex" : "hidden",
+          ].join(" ")}
+        >
           {/* Zoom badge */}
           <div class="no-print absolute top-3 right-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/85 backdrop-blur border border-brand-rule shadow-sm">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-brand-slate">
@@ -353,7 +396,7 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
             </span>
           </div>
 
-          <div class="h-[calc(100vh-57px)] overflow-auto preview-scroll">
+          <div class="flex-1 min-h-0 overflow-auto preview-scroll">
             <div class="min-h-full flex justify-center items-start py-8 px-4">
               <div
                 style={{
@@ -392,3 +435,24 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
     </div>
   );
 });
+
+/** A single segmented-control tab for the mobile Edit / Preview switch. */
+const MobileTab = component$<{
+  label: string;
+  active: boolean;
+  onClick$: QRL<() => void>;
+}>(({ label, active, onClick$ }) => (
+  <button
+    type="button"
+    onClick$={onClick$}
+    aria-pressed={active}
+    class={[
+      "flex-1 py-2.5 text-sm font-medium transition-colors",
+      active
+        ? "text-brand-orange border-b-2 border-brand-orange"
+        : "text-brand-slate border-b-2 border-transparent hover:text-brand-navy",
+    ].join(" ")}
+  >
+    {label}
+  </button>
+));

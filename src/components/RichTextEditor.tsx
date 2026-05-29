@@ -144,13 +144,19 @@ export const RichTextEditor = component$<Props>((props) => {
     editor.setAttribute("link_title", "false");
     if (props.placeholder) editor.setAttribute("placeholder", props.placeholder);
 
-    // ── Wire change events via TinyMCE's `setup` config ─────────────────────
-    // The web component element accepts a `setup` *property* (not attribute)
-    // that receives the underlying editor instance. We capture THAT instance
-    // (the reliable handle) and read getContent() from it — reading from the
-    // custom element directly is unreliable across TinyMCE versions.
+    // ── Wire change events ───────────────────────────────────────────────────
+    // IMPORTANT: the <tinymce-editor> web component only invokes a `setup`
+    // function that lives on a *global* config object referenced by its
+    // `config` attribute. It IGNORES a `setup` property assigned directly on the
+    // element. The previous implementation relied on that ignored property, so
+    // our listeners were never attached and edits never reached Qwik — the
+    // preview only changed on a full remount. Instead we read the live editor
+    // instance the component stashes on its `_editor` field once it initialises
+    // and bind our listeners to it directly.
     let lastEmitted = props.value || "";
     let instance: any = null;
+    const CHANGE_EVENTS =
+      "input keyup change NodeChange ExecCommand SetContent Undo Redo";
     const emit = () => {
       try {
         if (!instance) return;
@@ -162,28 +168,47 @@ export const RichTextEditor = component$<Props>((props) => {
         /* editor torn down */
       }
     };
-    (editor as any).setup = (ed: any) => {
-      instance = ed;
-      // Capture every event that signals "content changed", including ones
-      // that fire on structural changes (ExecCommand fires for bold/italic/
-      // underline/lists; SetContent for paste/undo; NodeChange for caret).
-      ed.on("input keyup change NodeChange ExecCommand SetContent Undo Redo", emit);
-      ed.on("blur", emit);
-    };
 
     // Set initial content — must be a text node, not innerHTML (per TinyMCE
     // web component docs: it parses the text node, never raw HTML)
     editor.appendChild(document.createTextNode(props.value || ""));
-
     wrapperRef.value.appendChild(editor);
-    // Stash the instance getter so the external-sync task can read/write it.
-    editorRef.value = noSerialize({
-      getContent: () => (instance ? instance.getContent() : ""),
-      setContent: (html: string) => instance && instance.setContent(html),
-    } as any);
-    ready.value = true;
+
+    // Poll for the component's editor instance, then attach listeners. The
+    // `_editor` handle is set inside the component's own init `setup`, just
+    // before TinyMCE fires "init", and lives for the mounted component's life.
+    let pollTimer: ReturnType<typeof setTimeout> | undefined;
+    let attempts = 0;
+    const attach = () => {
+      const ed = (editor as any)._editor;
+      if (ed) {
+        instance = ed;
+        // Capture every event that signals "content changed", including
+        // structural ones (ExecCommand fires for bold/italic/underline/lists;
+        // SetContent for paste/undo; NodeChange for caret moves).
+        ed.on(CHANGE_EVENTS, emit);
+        ed.on("blur", emit);
+        editorRef.value = noSerialize({
+          getContent: () => (ed ? ed.getContent() : ""),
+          setContent: (html: string) => ed && ed.setContent(html),
+        } as any);
+        ready.value = true;
+        return;
+      }
+      if (attempts++ < 200) pollTimer = setTimeout(attach, 50); // ~10s ceiling
+    };
+    attach();
 
     cleanup(() => {
+      if (pollTimer) clearTimeout(pollTimer);
+      try {
+        if (instance) {
+          instance.off(CHANGE_EVENTS, emit);
+          instance.off("blur", emit);
+        }
+      } catch {
+        /* ignore */
+      }
       try {
         editor.remove();
       } catch {
