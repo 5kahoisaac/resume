@@ -102,12 +102,9 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
     store.resume.theme = stored.theme;
     store.hydrated = true;
 
-    // On phones/tablets the 794px A4 page is wider than the viewport, so the
-    // default 80% zoom would crop horizontally. Fit the page to the available
-    // width (minus a little gutter) so the whole resume is visible.
-    if (typeof window !== "undefined" && window.innerWidth < 1024) {
-      const fit = (window.innerWidth - 32) / PAPER_WIDTH_PX;
-      zoom.value = Math.max(0.3, Math.min(1, fit));
+    // Set zoom by device class: mobile (<768px) → 50%, tablet/desktop → 80%.
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      zoom.value = 0.5;
     }
   });
 
