@@ -93,9 +93,10 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
-    // On client mount, load the stored copy (or default JSON). Async because
-    // the default now lives at /public/default-resume.json.
-    const stored = await loadResume();
+    // Home page (canEdit=false) always shows the public default — never
+    // localStorage — so visitors see the canonical resume, not local edits.
+    // The editor (canEdit=true) loads localStorage first, then falls back.
+    const stored = canEdit ? await loadResume() : migrate(await loadDefaultResume());
     store.resume.version = stored.version;
     store.resume.header = stored.header;
     store.resume.sections = stored.sections;
@@ -139,7 +140,7 @@ export const ResumeApp = component$<ResumeAppProps>(({ canEdit = true }) => {
     track(() => store.resume.header);
     track(() => store.resume.theme);
     track(() => store.hydrated);
-    if (!store.hydrated) return;
+    if (!store.hydrated || !canEdit) return;
     const timer = setTimeout(() => saveResume(store.resume), 400);
     cleanup(() => clearTimeout(timer));
   });
