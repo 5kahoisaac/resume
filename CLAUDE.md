@@ -46,10 +46,17 @@ store.resume (useStore deep proxy, in ResumeApp)
 | `src/components/SectionEditor.tsx` | All per-section editor forms in one file |
 | `src/components/HeaderEditor.tsx` | Name, title, contact list editor |
 | `src/components/RichTextEditor.tsx` | TinyMCE web component wrapper |
+| `src/components/Toolbar.tsx` | Sticky top bar — zoom, palette picker, export/import/reset actions |
+| `src/components/ThemeStyle.tsx` | Injects CSS variable overrides for the active palette into `:root` |
+| `src/components/TagInput.tsx` | Chip/tag input used by the Skills section |
+| `src/components/AddSectionMenu.tsx` | "+ Add a section" dropdown; lists available section types |
 | `src/utils/pdf.ts` | html2canvas → jsPDF export pipeline with smart page breaks and link annotations |
 | `src/utils/linkify.ts` | `renderRichText` (sanitise HTML or autolink plain text), `autoLink`, `sanitiseHtml` |
 | `src/utils/storage.ts` | `loadResume`, `saveResume`, schema migration (v1→v2) |
+| `src/utils/auth.ts` | HMAC-SHA256 session cookie auth for the `/editor` route |
 | `src/global.css` | Paper styles, `.rich-content` formatting, `.resume-page` dimensions |
+| `src/routes/index.tsx` | Home route — read-only preview, `canEdit=false` |
+| `src/routes/editor/index.tsx` | Editor route — full editing UI, password-gated |
 
 ## Critical Qwik gotchas
 
