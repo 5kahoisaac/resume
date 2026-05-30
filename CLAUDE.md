@@ -2,6 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Local Skills
+
+This project ships a custom skill. Invoke it via your agent's skill command (e.g. `/cv-import`):
+
+| Skill | Trigger | Purpose |
+|---|---|---|
+| `cv-import` | `/cv-import /path/to/cv.pdf` | Extract a PDF CV with LLM (markitdown if available), enhance content, and write `public/default-resume.json`. No editor login required to preview the result. |
+
+After the skill writes `public/default-resume.json`, clear the cached resume and reload to see it:
+```js
+localStorage.removeItem("qwik-resume-editor:v2"); location.reload();
+```
+
+Full skill instructions live in `.claude/skills/cv-import/SKILL.md` (symlinked into `.cursor/`, `.opencode/`, `.codex/`, `.pi/`, `.agents/`, `.gemini/`, and `.antigravity/` for other agents).
+
 ## Commands
 
 ```bash
