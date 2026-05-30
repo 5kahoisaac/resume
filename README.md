@@ -1,28 +1,32 @@
-# Resume Forge — Qwik Resume Editor
+# Resume Forge
 
-A live, editable, PDF-exporting resume builder built with **Qwik**, **Qwik City**, and **Tailwind CSS**. The default content mirrors the supplied Enhancv-exported PDF for *Isaac Ng, Ka Ho*, and the visual design is a re-creation of the same layout — navy name wordmark, orange section headings and accents, dotted proficiency rows, chip-style skills, timeline experience rail, and the faint flowing wave lines in the page background.
+A live, A4 resume editor with instant preview, PDF export, and JSON round-tripping — built with **Qwik**, **Qwik City**,
+and **Tailwind CSS**. All data lives in the browser; there is no backend database.
 
 ## Features
 
-- **Live split-pane editor** — every keystroke updates the A4 preview on the right.
-- **Rich-text content with TinyMCE** — summary, experience descriptions (including bullet points and numbered lists), and award descriptions are full WYSIWYG editors. Bullets live inside the description editor itself via TinyMCE's list toolbar buttons; no separate sub-form to wrangle. Insert links, bold, italic, lists, and more directly from the toolbar.
-- **Tag input for skill chips** — skill groups use a proper chip input: type a skill and press Enter, Tab, or comma to commit. Backspace removes the last tag, and pasting a comma-separated list splits automatically.
-- **Clickable contact links** — email becomes `mailto:`, phone becomes `tel:`, websites and LinkedIn open in a new tab. Reference contacts and any URL/email/phone embedded in body text auto-link.
-- **Edit every field** — typed editors per section (summary, languages, skills, expertise, experience, education, certifications, awards, references).
-- **Reorder by drag-and-drop or arrow buttons** — section order is canonical state.
-- **Add or remove sections** — pick from 9 section types; you can have more than one of a type if needed.
-- **Hide without deleting** — per-section visibility toggle (great for tailoring per application).
-- **Theme accent picker** — recolour the orange wordmark and accent bars with one click.
-- **Zoom slider** — preview at 40–120% without affecting print size.
-- **Export to PDF** — captures the live preview into a paginated A4 PDF that matches the on-screen layout, hyperlinks preserved as clickable annotations.
-- **Export / import JSON** — the same schema used internally, round-trippable. Older JSON files (without rich-text or `phone`) load and migrate transparently.
-- **Auto-save to `localStorage`** — work continues where you left off.
-- **Reset to default** — restore the sample resume.
-- **Print-friendly** — `Cmd/Ctrl+P` produces a clean printout (editor chrome hidden via `.no-print`).
+- **Live split-pane editing** — every keystroke updates the A4 preview in real time.
+- **Rich-text content** — summary and experience descriptions use a full TinyMCE WYSIWYG editor (bold, italic, lists,
+  links, and more).
+- **Chip-style skill tags** — type a skill and press Enter, Tab, or comma to commit; paste a comma-separated list to
+  split automatically.
+- **Clickable contacts** — email, phone, website, and LinkedIn auto-resolve to `mailto:`, `tel:`, and HTTPS links in the
+  preview and PDF.
+- **9 section types** — Summary, Experience, Education, Skills, Languages, Expertise, Certifications, Awards, and
+  References.
+- **Drag-and-drop reordering** — sections and items within sections.
+- **Per-section visibility toggle** — hide a section without deleting it (useful for tailoring per application).
+- **Color palette picker** — six pre-set accent/text palettes; override individually.
+- **Zoom slider** — preview at 40–120% without affecting the printed size.
+- **PDF export** — paginated A4, links preserved as clickable annotations.
+- **JSON export / import** — the same schema the editor uses internally, fully round-trippable.
+- **Auto-save** — persisted in `localStorage`; continues where you left off.
+- **Reset** — restores the default resume from `public/default-resume.json`.
+- **Print-friendly** — `Cmd/Ctrl+P` hides editor chrome and prints a clean A4 page.
 
 ## Getting Started
 
-Requires **Node 18.17+ / 20.3+ / 21+**.
+Requires **Node 18.17+ / 20.3+ / 21+** and `pnpm`.
 
 ```bash
 npm install
@@ -31,207 +35,197 @@ pnpm dev
 
 Open the URL printed by Vite (usually `http://localhost:5173`).
 
-### Other scripts
+The home route (`/`) is a read-only preview. The editor lives at `/editor` and is password-gated — set `EDITOR_PASSWORD`
+and `AUTH_SECRET` in `.env.local`:
 
-| Script              | What it does                                                |
-| ------------------- | ----------------------------------------------------------- |
-| `pnpm dev`       | Vite dev server with SSR                                    |
-| `pnpm build`     | Full production build (client + SSR)                        |
-| `pnpm preview`   | Build and serve a production preview locally                |
-| `pnpm lint`      | ESLint with the Qwik plugin ruleset                         |
-| `pnpm fmt`       | Prettier across the project                                 |
+```bash
+cp .env.example .env.local   # then fill in EDITOR_PASSWORD and AUTH_SECRET
+```
+
+### Scripts
+
+| Command        | Description                          |
+|----------------|--------------------------------------|
+| `pnpm dev`     | Vite dev server with SSR             |
+| `pnpm build`   | Full production build (client + SSR) |
+| `pnpm preview` | Build then serve locally             |
+| `pnpm lint`    | ESLint with the Qwik plugin ruleset  |
+| `pnpm fmt`     | Prettier across the project          |
 
 ## Project Structure
 
 ```
 src/
 ├── components/
+│   ├── ResumeApp.tsx          # root orchestrator — all state and mutation QRLs
+│   ├── ResumePreview.tsx      # A4 paper renderer (PDF capture target)
+│   ├── SectionEditor.tsx      # per-section editor forms
+│   ├── HeaderEditor.tsx       # name / title / contact list
+│   ├── Toolbar.tsx            # zoom, palette, export, import, reset
+│   ├── RichTextEditor.tsx     # TinyMCE web-component wrapper
+│   ├── TagInput.tsx           # chip input for skill groups
 │   ├── AddSectionMenu.tsx     # "+ Add a section" dropdown
-│   ├── HeaderEditor.tsx       # name / title / contact form
-│   ├── ResumePreview.tsx      # the A4 paper renderer (PDF capture target)
-│   ├── SectionEditor.tsx      # per-section editor cards
-│   ├── Toolbar.tsx            # sticky header — exports, zoom, accent, reset
-│   └── router-head/
-│       └── router-head.tsx    # <head> manager
+│   └── ThemeStyle.tsx         # injects CSS variable overrides for the active palette
 ├── data/
-│   └── resume.ts              # schema, DEFAULT_RESUME, createEmptySection
+│   └── resume.ts              # Resume type, section types, palettes, factories
 ├── routes/
-│   └── index.tsx              # main orchestrator page
+│   ├── index.tsx              # / — read-only preview (no login required)
+│   └── editor/index.tsx       # /editor — full editor, password-gated
 ├── utils/
 │   ├── pdf.ts                 # html2canvas + jsPDF export pipeline
-│   └── storage.ts             # localStorage + JSON import/export
-├── entry.dev.tsx
-├── entry.preview.tsx
-├── entry.ssr.tsx
-├── global.css                 # Tailwind directives + paper styling
+│   ├── storage.ts             # loadResume, saveResume, schema migration
+│   ├── auth.ts                # HMAC-SHA256 session cookie auth
+│   └── linkify.ts             # autolink and sanitise HTML
+├── global.css                 # paper styles, .rich-content, .resume-page
 └── root.tsx
+public/
+└── default-resume.json        # seed resume (loaded on first visit and on Reset)
 ```
 
 ## JSON Schema
 
-The editor is a thin shell over a single `Resume` object that round-trips cleanly through JSON. Here's the shape (TypeScript-style; see `src/data/resume.ts` for the source of truth):
+The editor round-trips over a single `Resume` object (schema version `2.0.0`). See `src/data/resume.ts` for the
+canonical TypeScript types.
 
-```ts
-interface Resume {
-  version: string;          // schema version string (currently "1.0.0")
-  header: Header;
-  sections: ResumeSection[]; // ordered, displayed top-to-bottom
-  theme?: { accent: string; text: string; paper: string };
+```jsonc
+{
+  "version": "2.0.0",
+  "header": {
+    "name": "Jane Smith",
+    "title": "Senior Engineer",
+    "contacts": [
+      { "id": "c_1", "type": "email",  "label": "jane@example.com" },
+      { "id": "c_2", "type": "tel",    "label": "+1 234 567 8900" },
+      { "id": "c_3", "type": "url",    "label": "linkedin.com/in/jane", "href": "https://linkedin.com/in/jane" },
+      { "id": "c_4", "type": "string", "label": "San Francisco, CA" }
+    ]
+  },
+  "theme": { "paletteId": "orange-navy" },
+  "sections": [
+    {
+      "id": "sec_1", "type": "experience", "title": "Experience", "visible": true,
+      "data": {
+        "items": [{
+          "id": "exp_1", "title": "Staff Engineer", "company": "Acme Corp",
+          "location": "Remote", "start": "2021-03", "end": "",
+          "description": "<ul><li>Led platform migration…</li></ul>"
+        }]
+      }
+    }
+  ]
 }
-
-interface Header {
-  name: string;
-  title: string;
-  email?: string;
-  phone?: string;     // rendered as a tel: link
-  website?: string;
-  linkedin?: string;
-  location?: string;
-}
-
-type ResumeSection =
-  | { id: string; type: "summary";       title: string; visible?: boolean; data: { content: string } }
-  | { id: string; type: "languages";     title: string; visible?: boolean; data: { items: { id: string; name: string; level: string; proficiency: 1|2|3|4|5 }[] } }
-  | { id: string; type: "skills";        title: string; visible?: boolean; data: { groups: { id: string; label: string; items: string[] }[] } }
-  | { id: string; type: "expertise";     title: string; visible?: boolean; data: { items: { id: string; label: string; level: number /* 0-100 */ }[] } }
-  | { id: string; type: "experience";    title: string; visible?: boolean; data: { items: { id: string; title: string; company: string; start: string; end: string; location?: string; description?: string; bullets: string[] }[] } }
-  | { id: string; type: "education";     title: string; visible?: boolean; data: { items: { id: string; degree: string; school: string; start: string; end: string; description?: string }[] } }
-  | { id: string; type: "certifications"; title: string; visible?: boolean; data: { items: { id: string; name: string; issuer: string }[] } }
-  | { id: string; type: "awards";        title: string; visible?: boolean; data: { items: { id: string; name: string; description?: string }[] } }
-  | { id: string; type: "references";    title: string; visible?: boolean; data: { items: { id: string; name: string; role: string; contact?: string }[] } };
 ```
 
-Every section carries its own `id` (stable across edits — used for React-style keying and drag tracking) and `title` (the visible heading; users can rename "EXPERIENCE" to "PROFESSIONAL HISTORY" without touching the schema).
+Available `type` values: `summary` · `experience` · `education` · `skills` · `languages` · `expertise` ·
+`certifications` · `awards` · `references`
 
-### Import / Export
+Dates are stored as `"YYYY-MM"`; an empty string means "present". Older v1 JSON (flat header fields, `MM/YYYY` dates)
+migrates transparently on load.
 
-- **Export JSON** writes a file named after the candidate (e.g. `isaac-ng-ka-ho.json`).
-- **Import JSON** validates that `header` and `sections` exist and refuses anything malformed with an inline toast.
-- **Export PDF** rasterizes the live preview node into JPEG-quality-95 pages on an A4 canvas (210mm × 297mm). Two-page resumes split automatically.
+## AI Coding Skills
 
-## Rich text & hyperlinks
+This project ships a **`cv-import`** skill that extracts a PDF CV, enhances the content with an LLM, and writes a valid
+`Resume` JSON to `public/default-resume.json` — so you can preview the result immediately without logging in to the
+editor.
 
-The summary, experience descriptions, experience bullets, and award descriptions all use **TinyMCE** under the hood — a real WYSIWYG editor with Bold / Italic / Underline / Links / Lists / Numbered Lists / Remove Formatting in the toolbar. To insert a hyperlink, select some text and click the link icon.
+### cv-import
 
-The editor loads on demand from the TinyMCE web-component CDN (`@tinymce/tinymce-webcomponent`). Out of the box it runs under TinyMCE's open-source / `no-api-key` mode — free, no signup, fully functional, with a small "Build with TinyMCE" footer notice in the editor (permitted under the open-source licence).
+```
+/cv-import /path/to/cv.pdf
+/cv-import /path/to/cv.pdf --output custom.json
+```
 
-### Adding your Tiny Cloud API key
+**What it does:**
 
-To remove the notice and unlock the premium plugin trial, drop in a Tiny Cloud API key via an env var — never hardcode it in source:
-
-1. Sign up at [tiny.cloud](https://www.tiny.cloud/auth/signup/) (free tier is fine).
-2. Copy your API key from the dashboard.
-3. Copy `.env.example` to `.env.local`:
-   ```bash
-   cp .env.example .env.local
+1. Detects [`markitdown`](https://github.com/microsoft/markitdown) and uses it if available; falls back to native LLM
+   PDF reading otherwise.
+2. Normalises all dates to `YYYY-MM`, classifies contacts by type, maps language proficiency to the enum, groups skills
+   by category, and converts bullet points to HTML.
+3. Writes the result to `public/default-resume.json`.
+4. Prints a one-liner to preview the result in the browser immediately — no editor password needed:
+   ```js
+   localStorage.removeItem("qwik-resume-editor:v2"); location.reload();
    ```
-4. Edit `.env.local` and paste your key after `VITE_TINYMCE_API_KEY=`.
-5. Restart `pnpm dev`.
 
-`.env.local` is git-ignored. The `VITE_` prefix is required for Vite to expose the variable to the browser bundle — Tiny's frontend integration expects the key client-side because it's domain-scoped, not a secret. The TypeScript types for `import.meta.env.VITE_TINYMCE_API_KEY` are declared in `src/vite-env.d.ts`.
+For best extraction quality, install markitdown first:
 
-If no key is set, the editor automatically falls back to `no-api-key` mode so the app still works without configuration.
+```bash
+pip install markitdown
+```
 
-### Plain-text autolinking
+### Supported Agents
 
-Plain-text fields (location, reference contact, header email/phone/website) aren't editors but they still get **autolinked** on render: anything matching an email, phone, or URL pattern in the body or contact strings becomes a clickable `<a>` tag with the appropriate `mailto:`, `tel:`, or `https://` scheme. The logic lives in `src/utils/linkify.ts` and is also responsible for sanitising the HTML that TinyMCE produces before it reaches `dangerouslySetInnerHTML` in the preview.
+The skill is registered for all of the following agents. Each agent reads from its own config directory; all symlink to
+the same canonical `SKILL.md` so any edit propagates everywhere automatically.
 
-Both shapes round-trip cleanly through JSON: imported plain-text content keeps working (it just gets autolinked), and HTML content is stored verbatim as a string.
+| Agent                                                     | Config directory                 |
+|-----------------------------------------------------------|----------------------------------|
+| [Claude Code](https://claude.ai/code)                     | `.claude/skills/cv-import/`      |
+| [Cursor](https://cursor.com)                              | `.cursor/skills/cv-import/`      |
+| [Codex](https://platform.openai.com/docs/codex)           | `.codex/skills/cv-import/`       |
+| [OpenCode](https://opencode.ai)                           | `.opencode/skills/cv-import/`    |
+| [Pi](https://pi.dev)                                      | `.pi/skills/cv-import/`          |
+| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `.gemini/skills/cv-import/`      |
+| [Antigravity](https://antigravity.dev)                    | `.antigravity/skills/cv-import/` |
+
+> [!TIP]
+> Pi also scans `.agents/skills/` as a shared location. The skill is registered there too for broader cross-agent
+> compatibility.
 
 ## Customization
 
-### Change the accent colour permanently
+### Accent colour and palette
 
-Edit `tailwind.config.js` → `theme.extend.colors.brand.orange`, or override at runtime via the accent swatches in the toolbar (per-resume, persisted in JSON under `theme.accent`).
+Select a palette from the toolbar at runtime (persisted in the JSON `theme` field). To change the default permanently,
+edit `PALETTES` in `src/data/resume.ts` or update `public/default-resume.json`.
 
-### Swap the typeface
+### Typeface
 
-Fonts are pulled from Google Fonts at the top of `src/global.css`. Replace the `@import` URL and the `fontFamily` keys in `tailwind.config.js` together — the preview will pick up the change automatically.
+Fonts are loaded from Google Fonts at the top of `src/global.css`. Replace the `@import` URL and the corresponding
+`fontFamily` entry in `tailwind.config.js`.
 
-### Add a new section type
+### TinyMCE API key
 
-Five small touches in two files:
+The editor runs in open-source mode by default (no signup required, small attribution notice). To remove the notice:
 
-1. **`src/data/resume.ts`** — add the literal to `SectionType`, define a `…Data` interface, extend the `ResumeSection` discriminated union, and add a `case` in `createEmptySection()`.
-2. **`src/components/ResumePreview.tsx`** — add a render block for the new type inside `SectionRenderer`.
-3. **`src/components/SectionEditor.tsx`** — add a `<NewTypeEditor>` and route to it inside the body switch.
-4. **`src/components/AddSectionMenu.tsx`** — append an entry to the `MENU` array.
-5. Done. The drag-and-drop, persistence, JSON round-trip, and PDF export pick it up for free.
+1. Get a free API key at [tiny.cloud](https://www.tiny.cloud/auth/signup/).
+2. Add it to `.env.local`:
+   ```
+   VITE_TINYMCE_API_KEY=your_key_here
+   ```
+3. Restart `pnpm dev`.
 
-## Notes on the PDF Export
+### Adding a new section type
 
-The export uses `html2canvas` to rasterize the live DOM, then slices vertically across A4 pages with `jsPDF`. Two practical consequences:
+1. Add the literal to `SectionType` and a `…Data` interface in `src/data/resume.ts`, extend the discriminated union, and
+   add a `case` in `createEmptySection()`.
+2. Add a render block in `src/components/ResumePreview.tsx`.
+3. Add an editor form in `src/components/SectionEditor.tsx`.
+4. Append an entry to the `MENU` array in `src/components/AddSectionMenu.tsx`.
 
-- **Web fonts must be loaded before export.** Google Fonts are preloaded by the `<link>` tag in `global.css` and are usually ready by the time the user clicks Export.
-- **The output is a rasterized PDF**, not vector text. This is the right trade-off for "exactly matches what I see on screen" — vector PDF generators (pdfmake, react-pdf) require re-implementing the layout in a different rendering engine and almost always drift from the on-screen design.
+Drag-and-drop, persistence, JSON round-trip, and PDF export all pick up new section types automatically.
 
-For a perfect vector PDF you can also use the browser's native print dialog (Cmd/Ctrl+P) — the `@media print` rules in `global.css` hide editor chrome and produce a clean A4 page.
+## Deployment
 
-## License
+The project targets **Netlify Edge Functions**. After setting `EDITOR_PASSWORD`, `AUTH_SECRET`, and optionally
+`VITE_TINYMCE_API_KEY` in the Netlify dashboard:
 
-MIT — make it yours.
+```bash
+# One-off manual deploy
+netlify deploy --build --prod
 
-## Netlify
-
-This starter site is configured to deploy to [Netlify Edge Functions](https://docs.netlify.com/edge-functions/overview/), which means it will be rendered at an edge location near to your users.
-
-### Local development
-
-The [Netlify CLI](https://docs.netlify.com/cli/get-started/) can be used to preview a production build locally. To do so: First build your site, then to start a local server, run:
-
-1. Install Netlify CLI globally `npm i -g netlify-cli`.
-2. Build your site with both ssr and static `pnpm build`.
-3. Start a local server with `pnpm serve`.
-   In this project, `pnpm serve` uses the `netlify dev` command to spin up a server that can handle Netlify's Edge Functions locally.
-4. Visit [http://localhost:8888/](http://localhost:8888/) to check out your site.
-
-### Edge Functions Declarations
-
-[Netlify Edge Functions declarations](https://docs.netlify.com/edge-functions/declarations/)
-can be configured to run on specific URL patterns. Each edge function declaration associates
-one site path pattern with one function to execute on requests that match the path. A single request can execute a chain of edge functions from a series of declarations. A single edge function can be associated with multiple paths across various declarations.
-
-This is useful to determine if a page response should be Server-Side Rendered (SSR) or
-if the response should use a static-site generated (SSG) `index.html` file instead.
-
-By default, the Netlify Edge adaptor will generate a `.netlify/edge-middleware/manifest.json` file, which is used by the Netlify deployment to determine which paths should, and should not, use edge functions.
-
-To override the generated manifest, you can [add a declaration](https://docs.netlify.com/edge-functions/declarations/#add-a-declaration) to the `netlify.toml` using the `[[edge_functions]]` config. For example:
-
-```toml
-[[edge_functions]]
-  path = "/admin"
-  function = "auth"
-```
-
-### Addition Adapter Options
-
-Netlify-specific option fields that can be passed to the adapter options:
-
-- `excludedPath` this option accepts a `string` glob pattern that represents which path pattern should not go through the generated Edge Functions.
-
-### Deployments
-
-You can [deploy your site to Netlify](https://docs.netlify.com/site-deploys/create-deploys/) either via a Git provider integration or through the Netlify CLI. This starter site includes a `netlify.toml` file to configure your build for deployment.
-
-#### Deploying via Git
-
-Once your site has been pushed to your Git provider, you can either link it [in the Netlify UI](https://app.netlify.com/start) or use the CLI. To link your site to a Git provider from the Netlify CLI, run the command:
-
-```shell
+# Or link to a Git repo for continuous deployment
 netlify link
 ```
 
-This sets up [continuous deployment](https://docs.netlify.com/site-deploys/create-deploys/#deploy-with-git) for your site's repo. Whenever you push new commits to your repo, Netlify starts the build process..
+To preview a production build locally:
 
-#### Deploying manually via the CLI
-
-If you wish to deploy from the CLI rather than using Git, you can use the command:
-
-```shell
-netlify deploy --build
+```bash
+npm i -g netlify-cli
+pnpm build
+netlify dev   # http://localhost:8888
 ```
 
-You must use the `--build` flag whenever you deploy. This ensures that the Edge Functions that this starter site relies on are generated and available when you deploy your site.
+## License
 
-Add `--prod` flag to deploy to production.
+[MIT](LICENSE.md) © Isaac Ng, Ka Ho
