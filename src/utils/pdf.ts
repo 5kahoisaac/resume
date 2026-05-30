@@ -19,6 +19,22 @@
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
 
+/**
+ * Records exactly which slice of the canvas was placed on which PDF page and
+ * at what y offset — used afterwards to overlay clickable link annotations at
+ * the correct positions.
+ */
+interface PageSlice {
+  /** Canvas y of the first row captured for this PDF page (canvas pixels). */
+  srcY: number;
+  /** Height of captured content for this PDF page (canvas pixels). */
+  srcH: number;
+  /** mm from the PDF page top where the captured content begins. */
+  pdfTopMm: number;
+  /** 1-based page number in the output PDF. */
+  pageNum: number;
+}
+
 export interface ExportOptions {
   /** The DOM node containing the resume preview to capture. */
   node: HTMLElement;
@@ -169,7 +185,7 @@ function findBreakRow(
  * PDF page. Each PDF page has top/bottom margins so content doesn't go
  * edge-to-edge. Smart breaks prefer section-boundary whitespace gaps.
  */
-function paginate(canvas: HTMLCanvasElement, pdf: any): void {
+function paginate(canvas: HTMLCanvasElement, pdf: any, slices: PageSlice[]): void {
   const pxPerMm = canvas.width / A4_WIDTH_MM;
   const pageHeightPx = Math.floor(A4_HEIGHT_MM * pxPerMm);
 
@@ -201,6 +217,7 @@ function paginate(canvas: HTMLCanvasElement, pdf: any): void {
       A4_WIDTH_MM,
       heightMm,
     );
+    slices.push({ srcY: 0, srcH: totalHeightPx, pdfTopMm: 0, pageNum: 1 });
     return;
   }
 
@@ -291,8 +308,91 @@ function paginate(canvas: HTMLCanvasElement, pdf: any): void {
       A4_WIDTH_MM,
       sliceHeightMm,
     );
+    slices.push({
+      srcY: drawnPx,
+      srcH: captureHeightPx,
+      pdfTopMm: topOffset / pxPerMm,
+      pageNum: slices.length + 1,
+    });
     isFirst = false;
     drawnPx += captureHeightPx;
+  }
+}
+
+/**
+ * Walk the offsetParent chain from `el` up to (but not including) `container`
+ * to get the element's position in the natural layout coordinate space — i.e.
+ * the same space html2canvas captures at natural (un-zoomed) size. This avoids
+ * using getBoundingClientRect which returns viewport-scaled values.
+ */
+function getNaturalOffset(
+  el: HTMLElement,
+  container: HTMLElement,
+): { top: number; left: number; width: number; height: number } {
+  let top = 0;
+  let left = 0;
+  let cur: HTMLElement | null = el;
+  while (cur && cur !== container) {
+    top += cur.offsetTop;
+    left += cur.offsetLeft;
+    cur = cur.offsetParent as HTMLElement | null;
+  }
+  return { top, left, width: el.offsetWidth, height: el.offsetHeight };
+}
+
+/**
+ * After paginate() has placed all image slices, overlay clickable link
+ * annotations on the PDF so hrefs from rich-text content and contact info
+ * are preserved. Each annotation is positioned using the same coordinate
+ * math as paginate() — natural-px → canvas-px → mm.
+ */
+function overlayLinks(
+  node: HTMLElement,
+  pdf: any,
+  slices: PageSlice[],
+  naturalWidth: number,
+  canvasScale: number,
+): void {
+  if (slices.length === 0) return;
+  const pxPerMm = (naturalWidth * canvasScale) / A4_WIDTH_MM;
+
+  const anchors = Array.from(node.querySelectorAll<HTMLAnchorElement>("a[href]"));
+  for (const a of anchors) {
+    // Link annotation is a best-effort enhancement: a single malformed href or
+    // jsPDF quirk must NEVER abort the export. Guard every anchor individually.
+    try {
+      const href = a.getAttribute("href") ?? "";
+      if (!href || /^javascript:/i.test(href)) continue;
+
+      const { top, left, width, height } = getNaturalOffset(a, node);
+      if (!width || !height) continue;
+
+      // Convert natural-px → canvas-px → mm
+      const elCanvasY = top * canvasScale;
+      const xMm = (left * canvasScale) / pxPerMm;
+      const wMm = (width * canvasScale) / pxPerMm;
+      const hMm = (height * canvasScale) / pxPerMm;
+      if (![xMm, wMm, hMm, elCanvasY].every(Number.isFinite)) continue;
+
+      // Find the page slice whose canvas y-range contains the element's top
+      for (const slice of slices) {
+        if (elCanvasY < slice.srcY || elCanvasY >= slice.srcY + slice.srcH) continue;
+        const yMm = slice.pdfTopMm + (elCanvasY - slice.srcY) / pxPerMm;
+        if (!Number.isFinite(yMm)) break;
+        pdf.setPage(slice.pageNum);
+        pdf.link(xMm, yMm, wMm, hMm, { url: href });
+        break;
+      }
+    } catch {
+      /* skip this link, keep exporting */
+    }
+  }
+
+  // Restore the page pointer so a later pdf.save() isn't affected by setPage.
+  try {
+    pdf.setPage(1);
+  } catch {
+    /* ignore */
   }
 }
 
@@ -343,18 +443,35 @@ export async function exportResumePDF(opts: ExportOptions): Promise<void> {
       el.style.width = `${naturalWidth}px`;
       el.style.transform = "none";
       el.style.transition = "none";
-      // Walk up the ancestor chain and clear any transform — primarily the
-      // zoom wrapper, but defensive against any other ancestor transforms.
+      el.style.display = "block";
+      // Walk up the ancestor chain and neutralise anything that could break the
+      // capture. CRITICAL: html2canvas re-evaluates media queries at
+      // windowWidth (the natural 794px page width), which is below the `lg`
+      // breakpoint — so on the editor page the responsive Edit/Preview tab
+      // toggle resolves the preview pane to `display:none` in the clone, giving
+      // the captured node no layout box (blank/broken PDF). We force every
+      // ancestor visible and unclipped, and clear transforms (the zoom wrapper).
       let ancestor: HTMLElement | null = el.parentElement;
       while (ancestor && ancestor !== doc.body) {
         ancestor.style.transform = "none";
         ancestor.style.transition = "none";
+        if (getComputedStyle(ancestor).display === "none") {
+          ancestor.style.display = "block";
+        }
+        ancestor.style.overflow = "visible";
         ancestor = ancestor.parentElement;
       }
     },
   });
 
   const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
-  paginate(canvas, pdf);
-  pdf.save(`${fileName}.pdf`);
+  const slices: PageSlice[] = [];
+  paginate(canvas, pdf, slices);
+  // Link overlay is purely additive — never let it block the actual export.
+  try {
+    overlayLinks(node, pdf, slices, naturalWidth, scale);
+  } catch (e) {
+    console.warn("PDF link overlay skipped:", e);
+  }
+  pdf.save(fileName);
 }

@@ -28,7 +28,7 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Resume — Isaac Ng",
+  title: "Resume - Isaac Ng",
   meta: [
     { name: "description", content: "Resume of Isaac Ng, Ka Ho — Senior Software Engineer." },
     { name: "viewport", content: "width=device-width, initial-scale=1" },

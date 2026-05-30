@@ -69,6 +69,20 @@ export function migrate(resume: any): Resume {
     resume.header = { name: h.name || "", title: h.title || "", contacts };
   }
 
+  // Repair contacts where `label` accidentally got written with the scheme
+  // prefix (e.g. "mailto:me@isaac.ng" instead of "me@isaac.ng"). This can
+  // happen when stale store snapshots are spread during contact mutations.
+  if (Array.isArray(resume.header.contacts)) {
+    for (const c of resume.header.contacts as ContactItem[]) {
+      if (c.type === "email" && typeof c.label === "string" && c.label.startsWith("mailto:")) {
+        c.label = c.label.slice("mailto:".length).trim();
+      }
+      if (c.type === "tel" && typeof c.label === "string" && c.label.startsWith("tel:")) {
+        c.label = c.label.slice("tel:".length).trim();
+      }
+    }
+  }
+
   if (!resume.theme) {
     resume.theme = { paletteId: DEFAULT_PALETTE_ID };
   } else if (!resume.theme.paletteId) {
@@ -101,7 +115,7 @@ export function migrate(resume: any): Resume {
             ? existing
             : existing ? `${existing}<ul>${listHtml}</ul>` : `<ul>${listHtml}</ul>`;
         }
-        item.bullets = [];
+        delete item.bullets;
       }
     }
     if (section.type === "education") {

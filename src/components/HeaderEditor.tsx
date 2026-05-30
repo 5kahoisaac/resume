@@ -28,30 +28,40 @@ const KIND_PLACEHOLDER: Record<ContactKind, string> = {
  * preview derives the href from the label). The order in this list IS the
  * order rendered in the preview, so re-arranging here re-arranges there.
  */
-export const HeaderEditor = component$<Props>(({ header, onUpdate$ }) => {
+export const HeaderEditor = component$<Props>((props) => {
+  // NOTE: read `props.header` LIVE inside every mutator (do NOT destructure it
+  // at the top). A destructured `header` is captured by these QRL closures as a
+  // stale render-time snapshot, so edits get computed against out-of-date state
+  // and the preview lags behind — same class of bug SectionEditor guards
+  // against. Reading through `props` always patches the latest store value.
+  const header = props.header;
 
   // ── Mutators ──────────────────────────────────────────────────────────────
   const updateContact$ = $((idx: number, patch: Partial<ContactItem>) => {
-    const next = header.contacts.slice();
+    const h = props.header;
+    const next = h.contacts.slice();
     next[idx] = { ...next[idx], ...patch };
-    onUpdate$({ ...header, contacts: next });
+    props.onUpdate$({ ...h, contacts: next });
   });
 
   const removeContact$ = $((idx: number) => {
-    onUpdate$({ ...header, contacts: header.contacts.filter((_, i) => i !== idx) });
+    const h = props.header;
+    props.onUpdate$({ ...h, contacts: h.contacts.filter((_, i) => i !== idx) });
   });
 
   const moveContact$ = $((idx: number, dir: -1 | 1) => {
-    const next = header.contacts.slice();
+    const h = props.header;
+    const next = h.contacts.slice();
     const j = idx + dir;
     if (j < 0 || j >= next.length) return;
     [next[idx], next[j]] = [next[j], next[idx]];
-    onUpdate$({ ...header, contacts: next });
+    props.onUpdate$({ ...h, contacts: next });
   });
 
   const addContact$ = $((type: ContactKind) => {
+    const h = props.header;
     const fresh: ContactItem = { id: uid("c"), type, label: "", href: type === "string" ? undefined : "" };
-    onUpdate$({ ...header, contacts: [...header.contacts, fresh] });
+    props.onUpdate$({ ...h, contacts: [...h.contacts, fresh] });
   });
 
   return (
@@ -69,14 +79,14 @@ export const HeaderEditor = component$<Props>(({ header, onUpdate$ }) => {
           class="field-input text-base font-semibold"
           placeholder="Full name"
           value={header.name}
-          onInput$={(_, el) => onUpdate$({ ...header, name: (el as HTMLInputElement).value })}
+          onInput$={(_, el) => props.onUpdate$({ ...props.header, name: (el as HTMLInputElement).value })}
         />
         <textarea
           class="field-input"
           rows={2}
           placeholder="Headline / role"
           value={header.title}
-          onInput$={(_, el) => onUpdate$({ ...header, title: (el as HTMLTextAreaElement).value })}
+          onInput$={(_, el) => props.onUpdate$({ ...props.header, title: (el as HTMLTextAreaElement).value })}
         />
 
         <div class="pt-2">

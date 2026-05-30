@@ -450,7 +450,7 @@ const ExperienceEditor = component$<{
       ))}
       <AddButton label="Add experience"
         onClick$={$(() => set([...items, {
-          id: uid("xp"), title: "", company: "", location: "", start: "", end: "", description: "", bullets: [],
+          id: uid("xp"), title: "", company: "", location: "", start: "", end: "", description: "",
         }]))} />
     </div>
   );

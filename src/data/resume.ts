@@ -122,8 +122,6 @@ export interface ExperienceItem {
   end: string;
   /** Rich-text (HTML) — TinyMCE-authored content including bullet lists. */
   description: string;
-  /** @deprecated Legacy v1 field — migrated into description. */
-  bullets: string[];
 }
 
 export interface ExperienceData {
@@ -137,8 +135,6 @@ export interface EducationItem {
   /** Stored as "YYYY-MM"; start required, empty end means "present". */
   start: string;
   end: string;
-  /** Optional rich-text description (achievements, focus areas). */
-  description?: string;
 }
 
 export interface EducationData {

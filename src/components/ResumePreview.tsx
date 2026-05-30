@@ -10,6 +10,7 @@ import type {
   SkillGroup,
   ExpertiseItem,
   LanguageItem,
+  ContactItem,
 } from "~/data/resume";
 import { LANGUAGE_LEVEL_DOTS, PALETTES, DEFAULT_PALETTE_ID } from "~/data/resume";
 import { renderRichText, autoLink } from "~/utils/linkify";
@@ -47,12 +48,16 @@ export const ResumePreview = component$<Props>(({ resume }) => {
       class="resume-page paper-texture paper-decorations shadow-paper"
       style={{ color: text, background: paper }}
     >
-      <Header resume={resume} accent={accent} text={text} />
+      {/* Pass resume.header as a direct prop — ResumePreview subscribes to
+          store.resume.header here, so when the header changes (any contact or
+          name edit) ResumePreview re-renders and Header receives a NEW header
+          object reference, guaranteeing a re-render with fresh contacts. */}
+      <Header header={resume.header} accent={accent} text={text} />
       <div class="mt-6 space-y-7">
         {resume.sections
           .filter((s) => s.visible)
           .map((section) => (
-            <SectionRenderer key={section.id} section={section} accent={accent} text={text} />
+            <SectionRenderer key={`${section.id}-${section.title}`} section={section} accent={accent} text={text} />
           ))}
       </div>
     </div>
@@ -64,9 +69,8 @@ export const ResumePreview = component$<Props>(({ resume }) => {
 // directly; the *order in the array IS the rendered order*. Each item picks
 // an icon glyph from its `type` discriminator and resolves an href.
 // ============================================================================
-const Header = component$<{ resume: Resume; accent: string; text: string }>(
-  ({ resume, accent, text }) => {
-    const { header } = resume;
+const Header = component$<{ header: import("~/data/resume").Header; accent: string; text: string }>(
+  ({ header, accent, text }) => {
     return (
       <header class="pb-3">
         <h1
@@ -85,17 +89,45 @@ const Header = component$<{ resume: Resume; accent: string; text: string }>(
           class="mt-3 font-sans font-bold"
           style={{ fontSize: "8.5pt", color: text, lineHeight: 1.6 }}
         >
-          {header.contacts.map((c) => (
-            <ContactItem
-              key={c.id}
-              icon={iconForKind(c.type)}
-              value={c.label}
-              href={hrefForContact(c)}
-              accent={accent}
-              text={text}
-              external={c.type === "url"}
-            />
-          ))}
+          {header.contacts.map((c) => {
+            const href = hrefForContact(c);
+            const external = c.type === "url";
+            const itemStyle = { textDecoration: "none", whiteSpace: "nowrap", marginRight: "18px" } as const;
+            const inner = (
+              <>
+                <span
+                  style={{
+                    color: accent,
+                    fontSize: "10pt",
+                    lineHeight: 1,
+                    marginRight: "4px",
+                    display: "inline-block",
+                    verticalAlign: "middle",
+                  }}
+                  aria-hidden="true"
+                >
+                  {ICON_GLYPH[iconForKind(c.type)]}
+                </span>
+                <span style={{ color: text, verticalAlign: "middle" }}>{c.label}</span>
+              </>
+            );
+            return href ? (
+              <a
+                key={`${c.id}-${c.label}`}
+                class="inline-block"
+                href={href}
+                target={external ? "_blank" : undefined}
+                rel={external ? "noopener noreferrer" : undefined}
+                style={itemStyle}
+              >
+                {inner}
+              </a>
+            ) : (
+              <span key={`${c.id}-${c.label}`} class="inline-block" style={itemStyle}>
+                {inner}
+              </span>
+            );
+          })}
         </div>
       </header>
     );
@@ -263,7 +295,7 @@ const LanguagesBlock = component$<{ items: LanguageItem[]; accent: string }>(
   ({ items, accent }) => (
     <div class="grid grid-cols-3 gap-x-6 gap-y-3">
       {items.map((lang) => (
-        <div key={lang.id} class="flex items-center justify-between">
+        <div key={`${lang.id}-${lang.name}-${lang.level}`} class="flex items-center justify-between">
           <div>
             <div class="font-sans" style={{ fontSize: "10.5pt", opacity: 0.78 }}>
               {lang.name}
@@ -290,7 +322,7 @@ const LanguagesBlock = component$<{ items: LanguageItem[]; accent: string }>(
 const SkillsBlock = component$<{ groups: SkillGroup[]; accent: string }>(({ groups, accent }) => (
   <div class="space-y-3">
     {groups.map((g) => (
-      <div key={g.id}>
+      <div key={`${g.id}-${g.label}`}>
         <div
           class="font-sans mb-1.5"
           style={{ fontSize: "10pt", color: accent }}
@@ -299,7 +331,7 @@ const SkillsBlock = component$<{ groups: SkillGroup[]; accent: string }>(({ grou
         </div>
         <div>
           {g.skills.map((s, i) => (
-            <span key={i} class="skill-chip">
+            <span key={`${i}-${s}`} class="skill-chip">
               {s}
             </span>
           ))}
@@ -313,7 +345,7 @@ const ExpertiseBlock = component$<{ items: ExpertiseItem[]; accent: string }>(
   ({ items, accent }) => (
     <div class="grid grid-cols-3 gap-x-8 gap-y-5">
       {items.map((item) => (
-        <div key={item.id}>
+        <div key={`${item.id}-${item.label}`}>
           <div class="font-sans mb-2" style={{ fontSize: "10pt", opacity: 0.78 }}>
             {item.label}
           </div>
@@ -346,7 +378,7 @@ const ExperienceBlock = component$<{ items: ExperienceItem[]; accent: string; te
       />
       <div class="space-y-5">
         {items.map((item) => (
-          <ExperienceEntry key={item.id} item={item} accent={accent} text={text} />
+          <ExperienceEntry key={`${item.id}-${item.title}-${item.company}`} item={item} accent={accent} text={text} />
         ))}
       </div>
     </div>
@@ -416,7 +448,7 @@ const EducationBlock = component$<{ items: EducationItem[]; accent: string; text
   ({ items, text, accent }) => (
     <div class="space-y-3">
       {items.map((e) => (
-        <div key={e.id} class="flex">
+        <div key={`${e.id}-${e.degree}-${e.school}`} class="flex">
           <div class="w-[88px] flex-shrink-0 pt-0.5">
             <div class="font-sans font-bold leading-tight" style={{ fontSize: "8.5pt" }}>
               {fmtRange(e.start, e.end)}
@@ -453,7 +485,7 @@ const EducationBlock = component$<{ items: EducationItem[]; accent: string; text
 const CertificationsBlock = component$<{ items: CertificationItem[] }>(({ items }) => (
   <div class="grid grid-cols-2 gap-x-8 gap-y-3">
     {items.map((c) => (
-      <div key={c.id}>
+      <div key={`${c.id}-${c.name}`}>
         <div class="font-sans font-bold" style={{ fontSize: "10pt" }}>
           {c.name}
         </div>
@@ -468,7 +500,7 @@ const CertificationsBlock = component$<{ items: CertificationItem[] }>(({ items 
 const AwardsBlock = component$<{ items: AwardItem[]; accent: string }>(({ items, accent }) => (
   <div class="grid grid-cols-2 gap-x-8 gap-y-3">
     {items.map((a) => (
-      <div key={a.id} class="flex gap-2.5">
+      <div key={`${a.id}-${a.name}`} class="flex gap-2.5">
         <span class="text-lg leading-none mt-0.5" style={{ color: accent }}>
           ◆
         </span>
@@ -490,7 +522,7 @@ const AwardsBlock = component$<{ items: AwardItem[]; accent: string }>(({ items,
 const ReferencesBlock = component$<{ items: ReferenceItem[] }>(({ items }) => (
   <div class="grid grid-cols-2 gap-x-8 gap-y-3">
     {items.map((r) => (
-      <div key={r.id}>
+      <div key={`${r.id}-${r.name}-${r.role}`}>
         <div class="font-sans font-bold" style={{ fontSize: "10pt" }}>
           {r.name}
           {r.role && <span class="font-normal">, {r.role}</span>}

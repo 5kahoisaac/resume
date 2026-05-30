@@ -25,7 +25,8 @@
       {
         "id": "c_4",
         "type": "string",
-        "label": "Hong Kong"
+        "label": "Hong Kong",
+        "href": ""
       }
     ]
   },
@@ -39,7 +40,7 @@
       "title": "Summary",
       "visible": true,
       "data": {
-        "text": "<p>Software Engineer with <strong>9+</strong> years of experience designing and delivering innovative software solutions across diverse industries.</p>\n<p>Proven expertise in leading development teams, driving SaaS product development, and managing multiple projects simultaneously. Skilled in optimizing performance, enhancing efficiency, and solving complex problems through advanced programming, system architecture design, and effective collaboration.</p>"
+        "text": "<p>Software Engineer with 9+ years of experience designing and delivering innovative software solutions across diverse industries. Proven expertise in leading development teams, driving SaaS product development, and managing multiple projects simultaneously. Skilled in optimizing performance, enhancing efficiency, and solving complex problems through advanced programming, system architecture design, and effective collaboration.</p>"
       }
     },
     {
@@ -83,7 +84,8 @@
               "Golang",
               "Python",
               "Java",
-              "PHP"
+              "PHP",
+              "Objective C"
             ]
           },
           {
@@ -94,6 +96,7 @@
               "jQuery",
               "React",
               "React Native",
+              "Expo",
               "Nest.js",
               "Gatsby.js",
               "Angular 4",
@@ -128,14 +131,19 @@
             "id": "id_10",
             "label": "Knowledge",
             "skills": [
+              "HTML",
+              "CSS",
               "Git",
               "GitHub",
-              "GitHub Actions",
+              "GitHub CI/CD",
               "GitLab",
               "GitLab CI/CD",
               "Monorepo",
               "Micro Frontend",
+              "Turbo repo",
               "Web Component",
+              "Postman",
+              "Figma",
               "Design System",
               "Storybook",
               "Docker",
@@ -144,7 +152,6 @@
               "Streamlit",
               "n8n",
               "windmill.dev",
-              "PayloadCMS",
               "sanity.io",
               "Netlify",
               "RabbitMQ",
@@ -162,9 +169,11 @@
               "Facebook Messager APIs",
               "AWS",
               "GCP",
-              "Context Engineering",
               "Spec-Driven Development",
-              "Test-Driven Development"
+              "Context Engineering",
+              "Test-Driven Development",
+              "Agentic AI",
+              "Compounding Engineering"
             ]
           },
           {
@@ -172,22 +181,22 @@
             "label": "Software",
             "skills": [
               "MS Office",
-              "Postman",
-              "Figma",
+              "TablePlus",
               "DBeaver",
               "MongoDB Compass",
               "XCode",
               "Android Studio",
               "VSCode",
+              "AnyDesk",
               "JetBrains IDEs",
-              "Docker",
+              "Docker Desktop",
               "1Password",
               "Ollama",
               "Kiro",
-              "Claude",
-              "Codex",
+              "Claude Code",
               "Gemini",
-              "OpenCode",
+              "Open Code",
+              "Codex",
               "oMLX"
             ]
           }
@@ -238,8 +247,7 @@
             "location": "Wong Chuk Hang, Hong Kong",
             "start": "2025-08",
             "end": "",
-            "description": "<p>The Executive Centre (TEC) is a premium flexible workspace provider, opened its doors in Hong Kong in 1994 and has over 240+ Centres in 37 cities and 15 markets.</p><ul><li>Consistent maintenance and timely updates.</li><li>Boosted development efficiency through integrating AI workflows into the process.</li></ul>",
-            "bullets": []
+            "description": "<p>The Executive Centre (TEC) is a premium flexible workspace provider, opened its doors in Hong Kong in 1994 and has over 240+ Centres in 37 cities and 15 markets.</p>\n<ul>\n<li>Consistent maintenance and timely updates.</li>\n<li>Boosted development efficiency through integrating AI workflows into the process.</li>\n</ul>"
           },
           {
             "id": "id_19",
@@ -248,8 +256,7 @@
             "location": "Kwun Tong, Hong Kong",
             "start": "2025-04",
             "end": "2025-07",
-            "description": "<p>Varadise is a Hong Kong-based AI technology company, founded in 2019, specializing in digital twin solutions and smart construction management. Its <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> platform integrates AI, IoT, and BIM data to enhance project efficiency, safety, and compliance in the construction and smart city sectors.</p><ul><li>Established <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> cross-platform (React &amp; React Native) design system, defining monorepo structure, creating CLI tools for code generation, researching styling solutions, standardizing UI components with documentation, and configuring Storybook and package build pipeline.</li><li>Refactored <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> status-flow pages and workflow backend solo in 1.5 months, implementing conditional actions for form submissions, background deadline countdown, and notifications.</li><li>Developed CLI tools for mobile app builds, enabling customization of app icon, name, and environment, and supporting future CI/CD pipeline automation.</li></ul>",
-            "bullets": []
+            "description": "<p>Varadise is a Hong Kong-based AI technology company, founded in 2019, specializing in digital twin solutions and smart construction management. Its <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> platform integrates AI, IoT, and BIM data to enhance project efficiency, safety, and compliance in the construction and smart city sectors.</p>\n<ul>\n<li>Established <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> cross-platform (React &amp; React Native) design system, defining monorepo structure, creating CLI tools for code generation, researching styling solutions, standardizing UI components with documentation, and configuring Storybook and package build pipeline.</li>\n<li>Refactored <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> status-flow pages and workflow backend solo in 1.5 months, implementing conditional actions for form submissions, background deadline countdown, and notifications.</li>\n<li>Developed CLI tools for mobile app builds, enabling customization of app icon, name, and environment, and supporting future CI/CD pipeline automation.</li>\n</ul>"
           },
           {
             "id": "id_20",
@@ -258,8 +265,7 @@
             "location": "",
             "start": "2024-05",
             "end": "2025-04",
-            "description": "<ul><li>Collaborated on <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> micro-frontend architecture, defining monorepo structure, creating CLI tools for code generation, and setting up Storybook and web-based design system.</li><li>Independently developed a microservices-based workflow and form system prototype for <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> in 1.5 months.</li><li>Conducted code reviews, task distribution, and standardized coding practices with documented guides for team and contributors.</li><li>Contributed to Scrum sprints with task time estimates and provided technical advice to product manager to optimize company objectives.</li></ul>",
-            "bullets": []
+            "description": "<ul>\n<li>Collaborated on <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> micro-frontend architecture, defining monorepo structure, creating CLI tools for code generation, and setting up Storybook and web-based design system.</li>\n<li>Independently developed a microservices-based workflow and form system prototype for <a href=\"https://www.varadise.com/cosmos\" target=\"_blank\" rel=\"noopener noreferrer\">COSMOS</a> in 1.5 months.</li>\n<li>Conducted code reviews, task distribution, and standardized coding practices with documented guides for team and contributors.</li>\n<li>Contributed to Scrum sprints with task time estimates and provided technical advice to product manager to optimize company objectives.</li>\n</ul>"
           },
           {
             "id": "id_21",
@@ -268,8 +274,7 @@
             "location": "",
             "start": "2023-03",
             "end": "2024-05",
-            "description": "<ul><li>Built a generic form rendering library and collaborated on a form-workflow backend for DWSS v3, simplifying form creation.</li><li>Solo-developed DWSS v2 frontend in 3 months with global state management and standardized UI, enhancing UX and consistency.</li><li>Created ETL process and automated government report submissions using Airflow for DWSS v2.</li><li>Dockerized DWSS v2 microservice with Docker Compose, streamlining testing and debugging.</li><li>Built CLI tool for legacy DWSS v1, reducing manual data processing time by 80%.</li><li>Improved team processes by standardizing tickets and mentoring junior developers through code reviews and task distribution.</li></ul>",
-            "bullets": []
+            "description": "<ul>\n<li>Built a generic form rendering library and collaborated on a form-workflow backend for DWSS v3, simplifying form creation.</li>\n<li>Solo-developed DWSS v2 frontend in 3 months with global state management and standardized UI, enhancing UX and consistency.</li>\n<li>Created ETL process and automated government report submissions using Airflow for DWSS v2.</li>\n<li>Dockerized DWSS v2 microservice with Docker Compose, streamlining testing and debugging.</li>\n<li>Built CLI tool for legacy DWSS v1, reducing manual data processing time by 80%.</li>\n<li>Improved team processes by standardizing tickets and mentoring junior developers through code reviews and task distribution.</li>\n</ul>"
           },
           {
             "id": "id_22",
@@ -278,8 +283,7 @@
             "location": "Sha Tin, Hong Kong",
             "start": "2019-11",
             "end": "2022-07",
-            "description": "<p>Spaceship, Hong Kong-based logistics platform, simplifies e-commerce shipping. Spaceship Pro offers discounted UPS, FedEx, DHL rates for door-to-door delivery in 200+ regions. Tech streamlines order management, tracking, customs, inventory, optimizing operations and cutting costs.</p><ul><li>Enhanced Spaceship's SEO by transitioning from CSR to SSR and optimized APIs by migrating to NestJS for improved efficiency and scalability.</li><li>Collaborated on reusable frontend design system for consistent UI across projects and built a top-ranked cross-platform SaaS app in two months, boosting revenue.</li><li>Migrated company's WordPress site to Gatsby.js with Sanity CMS, improving LCP, SEO, and search visibility via Nginx redirects.</li><li>Led internal tutorials, mentored interns and junior developers, and supported feature development and bug fixing to enhance team collaboration.</li></ul>",
-            "bullets": []
+            "description": "<p>Spaceship, Hong Kong-based logistics platform, simplifies e-commerce shipping. Spaceship Pro offers discounted UPS, FedEx, DHL rates for door-to-door delivery in 200+ regions. Tech streamlines order management, tracking, customs, inventory, optimizing operations and cutting costs.</p>\n<ul>\n<li>Enhanced Spaceship's SEO by transitioning from CSR to SSR and optimized APIs by migrating to NestJS for improved efficiency and scalability.</li>\n<li>Collaborated on reusable frontend design system for consistent UI across projects and built a top-ranked cross-platform SaaS app in two months, boosting revenue.</li>\n<li>Migrated company's WordPress site to Gatsby.js with Sanity CMS, improving LCP, SEO, and search visibility via Nginx redirects.</li>\n<li>Led internal tutorials, mentored interns and junior developers, and supported feature development and bug fixing to enhance team collaboration.</li>\n</ul>"
           },
           {
             "id": "id_23",
@@ -288,8 +292,7 @@
             "location": "Kwun Tong, Hong Kong",
             "start": "2018-01",
             "end": "2019-10",
-            "description": "<p>WeMine, founded in 2014, offers chat-based marketing solutions on WeChat, WhatsApp, and Facebook Messenger. Specializing in digital marketing and automation, including the WM:Suite platform, WeMine enhances brand engagement with data-driven strategies and content personalization.</p><ul><li>Revamped <a href=\"https://www.wemine.tech/intelligence\" target=\"_blank\" rel=\"noopener noreferrer\">Intelligence</a> frontend, adding analytics and optimizing performance for enhanced user experience and efficiency.</li><li>Architected standardized API connectors for <a href=\"https://www.wemine.tech/activate\" target=\"_blank\" rel=\"noopener noreferrer\">Activate</a>, enabling seamless WeChat and Facebook Messenger integration.</li><li>Modernized <a href=\"https://www.wemine.tech/engage\" target=\"_blank\" rel=\"noopener noreferrer\">Engage</a>'s legacy frontend with React 16 for a responsive, scalable UI.</li><li>Built WeChat and Facebook Messenger mini programs and campaign sites, boosting client engagement.</li><li>Integrated core product features with campaign mini programs for cohesive, high-impact digital experiences.</li></ul>",
-            "bullets": []
+            "description": "<p>WeMine, founded in 2014, offers chat-based marketing solutions on WeChat, WhatsApp, and Facebook Messenger. Specializing in digital marketing and automation, including the WM:Suite platform, WeMine enhances brand engagement with data-driven strategies and content personalization.</p>\n<ul>\n<li>Revamped <a href=\"https://www.wemine.tech/intelligence\" target=\"_blank\" rel=\"noopener noreferrer\">Intelligence</a> frontend, adding analytics and optimizing performance for enhanced user experience and efficiency.</li>\n<li>Architected standardized API connectors for <a href=\"https://www.wemine.tech/activate\" target=\"_blank\" rel=\"noopener noreferrer\">Activate</a>, enabling seamless WeChat and Facebook Messenger integration.</li>\n<li>Modernized <a href=\"https://www.wemine.tech/engage\" target=\"_blank\" rel=\"noopener noreferrer\">Engage</a>'s legacy frontend with React 16 for a responsive, scalable UI.</li>\n<li>Built WeChat and Facebook Messenger mini programs and campaign sites, boosting client engagement.</li>\n<li>Integrated core product features with campaign mini programs for cohesive, high-impact digital experiences.</li>\n</ul>"
           },
           {
             "id": "id_24",
@@ -298,8 +301,7 @@
             "location": "Lai Chi Kok, Hong Kong",
             "start": "2016-05",
             "end": "2017-12",
-            "description": "<p>Webgineer Limited, a Hong Kong agency since 2012, excels in execution and development. We prioritize clarity, aesthetics, and functionality through research and testing, delivering client-focused solutions.</p>",
-            "bullets": []
+            "description": "<p>Webgineer Limited, a Hong Kong agency since 2012, excels in execution and development. We prioritize clarity, aesthetics, and functionality through research and testing, delivering client-focused solutions.</p>"
           }
         ]
       }
@@ -334,19 +336,14 @@
             "issuer": "Meta"
           },
           {
-            "id": "crt_atrkyp5",
-            "name": "Microsoft IT Support Specialist Professional Certificate",
-            "issuer": "Microsoft"
-          },
-          {
             "id": "crt_pkquf0l",
             "name": "AWS Generative AI Applications",
             "issuer": "AWS"
           },
           {
-            "id": "crt_njm70sq",
-            "name": "Real-World AI for Everyone",
-            "issuer": "Anthropic"
+            "id": "crt_atrkyp5",
+            "name": "Microsoft IT Support Specialist Professional Certificate",
+            "issuer": "Microsoft"
           },
           {
             "id": "crt_6getowv",
@@ -359,8 +356,8 @@
             "issuer": "Anthropic"
           },
           {
-            "id": "crt_g1bqblf",
-            "name": "Introduction to Model Context Protocol",
+            "id": "crt_njm70sq",
+            "name": "Real-World AI for Everyone",
             "issuer": "Anthropic"
           },
           {
@@ -369,18 +366,23 @@
             "issuer": "Anthropic"
           },
           {
+            "id": "crt_g1bqblf",
+            "name": "Introduction to Model Context Protocol",
+            "issuer": "Anthropic"
+          },
+          {
             "id": "crt_o7769nc",
             "name": "Claude Code in Action",
             "issuer": "Anthropic"
           },
           {
-            "id": "crt_a6p2fkm",
-            "name": "Google AI",
+            "id": "crt_aj3zsut",
+            "name": "Google AI Essentials",
             "issuer": "Google"
           },
           {
-            "id": "crt_aj3zsut",
-            "name": "Google AI Essentials",
+            "id": "crt_a6p2fkm",
+            "name": "Google AI",
             "issuer": "Google"
           },
           {
@@ -389,14 +391,14 @@
             "issuer": "Google"
           },
           {
-            "id": "id_29",
-            "name": "Gemini Certified Educator",
-            "issuer": "Google for Education"
-          },
-          {
             "id": "id_28",
             "name": "Cloud-Based Lightweight Optimization for WordPress",
             "issuer": "Udemy"
+          },
+          {
+            "id": "id_29",
+            "name": "Gemini Certified Educator",
+            "issuer": "Google for Education"
           },
           {
             "id": "id_30",
@@ -475,13 +477,13 @@
         "items": [
           {
             "id": "id_44",
-            "name": "Cyberport Creative Micro Fund Grantee",
-            "description": "\"WhatsHulb,\" is a fair co-creation platform that empowers anyone to turn creative visions into reality. It secured HK$100,000 in seed funding from the Cyberport Creative Micro Fund in 2017."
+            "name": "Cyberport Creative Micro Fund (CCMF) Grantee",
+            "description": "<p>\"WhatsHulb,\" a fair platform empowering everyone to participate in co-creations and bring creative visions to life, secured HK$100,000 in seed funding from the Cyberport Creative Micro Fund in 2017 to kick-start its innovative idea and develop prototypes.</p>"
           },
           {
             "id": "id_45",
             "name": "JUPAS Scholarships",
-            "description": "HKUST provides a wide variety of scholarships for students who demonstrate exceptional academic accomplishment."
+            "description": "<p>HKUST provides a wide variety of scholarships for students who demonstrate exceptional academic accomplishment.</p>"
           }
         ]
       }
