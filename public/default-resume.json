@@ -40,7 +40,7 @@
       "title": "Summary",
       "visible": true,
       "data": {
-        "text": "<p>Software Engineer with 9+ years of experience designing and delivering innovative software solutions across diverse industries. Proven expertise in leading development teams, driving SaaS product development, and managing multiple projects simultaneously. Skilled in optimizing performance, enhancing efficiency, and solving complex problems through advanced programming, system architecture design, and effective collaboration.</p>"
+        "text": "<p>Software Engineer with <strong>9+</strong> years of experience designing and delivering innovative software solutions across diverse industries. Proven expertise in leading development teams, driving SaaS product development, and managing multiple projects simultaneously. Skilled in optimizing performance, enhancing efficiency, and solving complex problems through advanced programming, system architecture design, and effective collaboration.</p>"
       }
     },
     {
@@ -181,13 +181,11 @@
             "label": "Software",
             "skills": [
               "MS Office",
-              "TablePlus",
               "DBeaver",
               "MongoDB Compass",
               "XCode",
               "Android Studio",
               "VSCode",
-              "AnyDesk",
               "JetBrains IDEs",
               "Docker Desktop",
               "1Password",
@@ -346,6 +344,11 @@
             "issuer": "Microsoft"
           },
           {
+            "id": "crt_njm70sq",
+            "name": "Real-World AI for Everyone",
+            "issuer": "Anthropic"
+          },
+          {
             "id": "crt_6getowv",
             "name": "Claude 101",
             "issuer": "Anthropic"
@@ -353,11 +356,6 @@
           {
             "id": "crt_0eyqmzx",
             "name": "Claude Code 101",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_njm70sq",
-            "name": "Real-World AI for Everyone",
             "issuer": "Anthropic"
           },
           {
@@ -376,13 +374,18 @@
             "issuer": "Anthropic"
           },
           {
-            "id": "crt_aj3zsut",
-            "name": "Google AI Essentials",
-            "issuer": "Google"
+            "id": "id_29",
+            "name": "Gemini Certified Educator",
+            "issuer": "Google for Education"
           },
           {
             "id": "crt_a6p2fkm",
             "name": "Google AI",
+            "issuer": "Google"
+          },
+          {
+            "id": "crt_aj3zsut",
+            "name": "Google AI Essentials",
             "issuer": "Google"
           },
           {
@@ -394,11 +397,6 @@
             "id": "id_28",
             "name": "Cloud-Based Lightweight Optimization for WordPress",
             "issuer": "Udemy"
-          },
-          {
-            "id": "id_29",
-            "name": "Gemini Certified Educator",
-            "issuer": "Google for Education"
           },
           {
             "id": "id_30",
