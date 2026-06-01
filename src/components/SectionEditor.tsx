@@ -1,4 +1,4 @@
-import { component$, $, Slot, type QRL } from "@builder.io/qwik";
+import { component$, $, Slot, useStore, type QRL } from "@builder.io/qwik";
 import type { ResumeSection, LanguageLevel } from "~/data/resume";
 import { uid, LANGUAGE_LEVELS, LANGUAGE_LEVEL_DOTS } from "~/data/resume";
 import { RichTextEditor } from "./RichTextEditor";
@@ -357,6 +357,7 @@ const ExpertiseEditor = component$<{
 }>(({ section, patchData$ }) => {
   const items = section.data.items;
   const set = $((next: typeof items) => patchData$({ items: next }));
+  const levels = useStore<Record<string, number>>({});
   return (
     <div class="space-y-2">
       {items.map((item, idx) => (
@@ -372,8 +373,12 @@ const ExpertiseEditor = component$<{
             <input class="field-input" placeholder="Expertise area" value={item.label}
               onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, label: (el as HTMLInputElement).value }; set(c); }} />
             <input type="range" min="0" max="100" value={item.level} class="accent-brand-orange"
-              onInput$={(_, el) => { const c = items.slice(); c[idx] = { ...item, level: Number((el as HTMLInputElement).value) }; set(c); }} />
-            <span class="font-mono text-xs text-brand-slate text-right">{item.level}%</span>
+              onInput$={(_, el) => {
+                const val = Number((el as HTMLInputElement).value);
+                levels[item.id] = val;
+                const c = items.slice(); c[idx] = { ...item, level: val }; set(c);
+              }} />
+            <span class="font-mono text-xs text-brand-slate text-right">{levels[item.id] ?? item.level}%</span>
           </div>
         </RowFrame>
       ))}
