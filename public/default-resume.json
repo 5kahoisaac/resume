@@ -84,8 +84,7 @@
               "Golang",
               "Python",
               "Java",
-              "PHP",
-              "Objective C"
+              "PHP"
             ]
           },
           {
@@ -216,17 +215,17 @@
           {
             "id": "id_14",
             "label": "Project Management",
-            "level": 78
+            "level": 80
           },
           {
             "id": "id_15",
             "label": "Problem Solving",
-            "level": 88
+            "level": 90
           },
           {
             "id": "id_16",
             "label": "Communication",
-            "level": 55
+            "level": 60
           }
         ]
       }
