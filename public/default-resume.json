@@ -40,7 +40,7 @@
       "title": "Summary",
       "visible": true,
       "data": {
-        "text": "<p>Software Engineer with <strong>9+</strong> years of experience designing and delivering innovative software solutions across diverse industries. Proven expertise in leading development teams, driving SaaS product development, and managing multiple projects simultaneously. Skilled in optimizing performance, enhancing efficiency, and solving complex problems through advanced programming, system architecture design, and effective collaboration.</p>"
+        "text": "<p>Software Engineer with <strong>9+</strong> years of experience designing and delivering innovative software solutions across diverse industries. Proven expertise in leading development teams, driving <em>SaaS</em> product development, and managing multiple projects simultaneously. Skilled in optimizing performance, enhancing efficiency, and solving complex problems through advanced programming, system architecture design, and effective collaboration.</p>"
       }
     },
     {
@@ -328,84 +328,14 @@
       "data": {
         "items": [
           {
-            "id": "crt_283gy6c",
-            "name": "Meta Front-End Developer",
-            "issuer": "Meta"
+            "id": "id_41",
+            "name": "IIQE Paper I",
+            "issuer": "Vocational Training Council"
           },
           {
-            "id": "crt_pkquf0l",
-            "name": "AWS Generative AI Applications",
-            "issuer": "AWS"
-          },
-          {
-            "id": "crt_atrkyp5",
-            "name": "Microsoft IT Support Specialist Professional Certificate",
-            "issuer": "Microsoft"
-          },
-          {
-            "id": "crt_njm70sq",
-            "name": "Real-World AI for Everyone",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_6getowv",
-            "name": "Claude 101",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_0eyqmzx",
-            "name": "Claude Code 101",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_rh5fy84",
-            "name": "Model Context Protocol: Advanced Topics",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_g1bqblf",
-            "name": "Introduction to Model Context Protocol",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_o7769nc",
-            "name": "Claude Code in Action",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "id_29",
-            "name": "Gemini Certified Educator",
-            "issuer": "Google for Education"
-          },
-          {
-            "id": "crt_a6p2fkm",
-            "name": "Google AI",
-            "issuer": "Google"
-          },
-          {
-            "id": "crt_aj3zsut",
-            "name": "Google AI Essentials",
-            "issuer": "Google"
-          },
-          {
-            "id": "crt_kjg6zu7",
-            "name": "Google Prompting Essentials",
-            "issuer": "Google"
-          },
-          {
-            "id": "id_28",
-            "name": "Cloud-Based Lightweight Optimization for WordPress",
-            "issuer": "Udemy"
-          },
-          {
-            "id": "id_30",
-            "name": "Software Engineer",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_31",
-            "name": "Frontend Developer (React)",
-            "issuer": "HackerRank"
+            "id": "id_42",
+            "name": "IIQE Paper III",
+            "issuer": "Vocational Training Council"
           },
           {
             "id": "id_32",
@@ -423,13 +353,13 @@
             "issuer": "HackerRank"
           },
           {
-            "id": "id_35",
-            "name": "React (Basic)",
+            "id": "id_36",
+            "name": "JavaScript (Intermediate)",
             "issuer": "HackerRank"
           },
           {
-            "id": "id_36",
-            "name": "JavaScript (Intermediate)",
+            "id": "id_35",
+            "name": "React (Basic)",
             "issuer": "HackerRank"
           },
           {
@@ -453,14 +383,89 @@
             "issuer": "HackerRank"
           },
           {
-            "id": "id_41",
-            "name": "IIQE Paper I",
-            "issuer": "Vocational Training Council"
+            "id": "id_30",
+            "name": "Software Engineer",
+            "issuer": "HackerRank"
           },
           {
-            "id": "id_42",
-            "name": "IIQE Paper III",
-            "issuer": "Vocational Training Council"
+            "id": "id_31",
+            "name": "Frontend Developer (React)",
+            "issuer": "HackerRank"
+          },
+          {
+            "id": "id_28",
+            "name": "Cloud-Based Lightweight Optimization for WordPress",
+            "issuer": "Udemy"
+          },
+          {
+            "id": "crt_283gy6c",
+            "name": "Meta Front-End Developer",
+            "issuer": "Meta"
+          },
+          {
+            "id": "crt_atrkyp5",
+            "name": "Microsoft IT Support Specialist Professional Certificate",
+            "issuer": "Microsoft"
+          },
+          {
+            "id": "crt_yrpgtkp",
+            "name": "IBM Full Stack Software Developer",
+            "issuer": "IBM"
+          },
+          {
+            "id": "crt_pkquf0l",
+            "name": "AWS Generative AI Applications",
+            "issuer": "AWS"
+          },
+          {
+            "id": "id_29",
+            "name": "Gemini Certified Educator",
+            "issuer": "Google for Education"
+          },
+          {
+            "id": "crt_a6p2fkm",
+            "name": "Google AI Professional Certificate",
+            "issuer": "Google"
+          },
+          {
+            "id": "crt_aj3zsut",
+            "name": "Google AI Essentials Specialization",
+            "issuer": "Google"
+          },
+          {
+            "id": "crt_kjg6zu7",
+            "name": "Google Prompting Essentials Specialization",
+            "issuer": "Google"
+          },
+          {
+            "id": "crt_6getowv",
+            "name": "Claude 101",
+            "issuer": "Anthropic"
+          },
+          {
+            "id": "crt_0eyqmzx",
+            "name": "Claude Code 101",
+            "issuer": "Anthropic"
+          },
+          {
+            "id": "crt_njm70sq",
+            "name": "Real-World AI for Everyone",
+            "issuer": "Anthropic"
+          },
+          {
+            "id": "crt_o7769nc",
+            "name": "Claude Code in Action",
+            "issuer": "Anthropic"
+          },
+          {
+            "id": "crt_g1bqblf",
+            "name": "Introduction to Model Context Protocol",
+            "issuer": "Anthropic"
+          },
+          {
+            "id": "crt_rh5fy84",
+            "name": "Model Context Protocol: Advanced Topics",
+            "issuer": "Anthropic"
           }
         ]
       }
