@@ -423,6 +423,11 @@
             "issuer": "Google for Education"
           },
           {
+            "id": "crt_w19v3c9",
+            "name": "Google Project Management",
+            "issuer": "Google"
+          },
+          {
             "id": "crt_a6p2fkm",
             "name": "Google AI Professional Certificate",
             "issuer": "Google"
