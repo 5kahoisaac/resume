@@ -77,7 +77,7 @@
     {
       "id": "id_6",
       "type": "skills",
-      "title": "Skills & Knowledge",
+      "title": "Skills & Knowledges",
       "visible": true,
       "data": {
         "groups": [
@@ -128,7 +128,7 @@
               "PostgreSQL",
               "DynamoDB",
               "MongoDB",
-              "TimescaleDB",
+              "Timescale DB",
               "Redis"
             ]
           },
@@ -144,8 +144,8 @@
               "GitLab",
               "GitLab CI/CD",
               "Monorepo",
-              "Micro-frontend",
-              "Turborepo",
+              "Micro Frontend",
+              "Turbo repo",
               "Web Component",
               "Postman",
               "Figma",
@@ -196,9 +196,9 @@
               "1Password",
               "Ollama",
               "Kiro",
-              "Claude",
+              "Claude Code",
               "Gemini",
-              "OpenCode",
+              "Open Code",
               "Codex",
               "oMLX"
             ]
@@ -334,74 +334,9 @@
       "data": {
         "items": [
           {
-            "id": "id_41",
-            "name": "IIQE Paper I",
-            "issuer": "Vocational Training Council"
-          },
-          {
-            "id": "id_42",
-            "name": "IIQE Paper III",
-            "issuer": "Vocational Training Council"
-          },
-          {
-            "id": "id_32",
-            "name": "Problem Solving (Intermediate)",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_33",
-            "name": "Rest API (Intermediate)",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_34",
-            "name": "SQL (Advanced)",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_36",
-            "name": "JavaScript (Intermediate)",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_35",
-            "name": "React (Basic)",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_37",
-            "name": "Node.js (Intermediate)",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_38",
-            "name": "Go (Intermediate)",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_39",
-            "name": "Python (Basic)",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_40",
-            "name": "Java (Basic)",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_30",
-            "name": "Software Engineer",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_31",
-            "name": "Frontend Developer (React)",
-            "issuer": "HackerRank"
-          },
-          {
-            "id": "id_28",
-            "name": "Cloud-Based Lightweight Optimization for WordPress",
-            "issuer": "Udemy"
+            "id": "crt_pkquf0l",
+            "name": "AWS Generative AI Applications",
+            "issuer": "AWS"
           },
           {
             "id": "crt_283gy6c",
@@ -409,19 +344,14 @@
             "issuer": "Meta"
           },
           {
-            "id": "crt_atrkyp5",
-            "name": "Microsoft IT Support Specialist Professional Certificate",
-            "issuer": "Microsoft"
-          },
-          {
             "id": "crt_yrpgtkp",
             "name": "IBM Full Stack Software Developer",
             "issuer": "IBM"
           },
           {
-            "id": "crt_pkquf0l",
-            "name": "AWS Generative AI Applications",
-            "issuer": "AWS"
+            "id": "crt_atrkyp5",
+            "name": "Microsoft IT Support Specialist Professional Certificate",
+            "issuer": "Microsoft"
           },
           {
             "id": "id_29",
@@ -429,8 +359,8 @@
             "issuer": "Google for Education"
           },
           {
-            "id": "crt_a6p2fkm",
-            "name": "Google AI Professional Certificate",
+            "id": "crt_w19v3c9",
+            "name": "Google Project Management",
             "issuer": "Google"
           },
           {
@@ -444,28 +374,13 @@
             "issuer": "Google"
           },
           {
-            "id": "crt_w19v3c9",
-            "name": "Google Project Management",
+            "id": "crt_a6p2fkm",
+            "name": "Google AI Professional Certificate",
             "issuer": "Google"
           },
           {
             "id": "crt_njm70sq",
             "name": "Real-World AI for Everyone",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_6getowv",
-            "name": "Claude 101",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_0eyqmzx",
-            "name": "Claude Code 101",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_o7769nc",
-            "name": "Claude Code in Action",
             "issuer": "Anthropic"
           },
           {
@@ -476,6 +391,11 @@
           {
             "id": "crt_rh5fy84",
             "name": "Model Context Protocol: Advanced Topics",
+            "issuer": "Anthropic"
+          },
+          {
+            "id": "crt_o7769nc",
+            "name": "Claude Code in Action",
             "issuer": "Anthropic"
           }
         ]
