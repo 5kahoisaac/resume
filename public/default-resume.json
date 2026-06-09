@@ -23,6 +23,12 @@
         "href": "https://www.linkedin.com/in/isaac-ng-573851159/"
       },
       {
+        "id": "c_goxcdfb",
+        "type": "url",
+        "label": "Credly",
+        "href": "https://www.credly.com/users/isaac-ng.4569cc77"
+      },
+      {
         "id": "c_4",
         "type": "string",
         "label": "Hong Kong",
@@ -71,7 +77,7 @@
     {
       "id": "id_6",
       "type": "skills",
-      "title": "Skills & Knowledges",
+      "title": "Skills & Knowledge",
       "visible": true,
       "data": {
         "groups": [
@@ -122,7 +128,7 @@
               "PostgreSQL",
               "DynamoDB",
               "MongoDB",
-              "Timescale DB",
+              "TimescaleDB",
               "Redis"
             ]
           },
@@ -138,8 +144,8 @@
               "GitLab",
               "GitLab CI/CD",
               "Monorepo",
-              "Micro Frontend",
-              "Turbo repo",
+              "Micro-frontend",
+              "Turborepo",
               "Web Component",
               "Postman",
               "Figma",
@@ -190,9 +196,9 @@
               "1Password",
               "Ollama",
               "Kiro",
-              "Claude Code",
+              "Claude",
               "Gemini",
-              "Open Code",
+              "OpenCode",
               "Codex",
               "oMLX"
             ]
@@ -423,11 +429,6 @@
             "issuer": "Google for Education"
           },
           {
-            "id": "crt_w19v3c9",
-            "name": "Google Project Management",
-            "issuer": "Google"
-          },
-          {
             "id": "crt_a6p2fkm",
             "name": "Google AI Professional Certificate",
             "issuer": "Google"
@@ -443,6 +444,16 @@
             "issuer": "Google"
           },
           {
+            "id": "crt_w19v3c9",
+            "name": "Google Project Management",
+            "issuer": "Google"
+          },
+          {
+            "id": "crt_njm70sq",
+            "name": "Real-World AI for Everyone",
+            "issuer": "Anthropic"
+          },
+          {
             "id": "crt_6getowv",
             "name": "Claude 101",
             "issuer": "Anthropic"
@@ -450,11 +461,6 @@
           {
             "id": "crt_0eyqmzx",
             "name": "Claude Code 101",
-            "issuer": "Anthropic"
-          },
-          {
-            "id": "crt_njm70sq",
-            "name": "Real-World AI for Everyone",
             "issuer": "Anthropic"
           },
           {
