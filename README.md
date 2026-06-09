@@ -21,7 +21,7 @@ and **Tailwind CSS**. All data lives in the browser; there is no backend databas
 - **PDF export** — paginated A4, links preserved as clickable annotations.
 - **JSON export / import** — the same schema the editor uses internally, fully round-trippable.
 - **Auto-save** — persisted in `localStorage`; continues where you left off.
-- **Reset** — restores the default resume from `public/default-resume.json`.
+- **Reset** — restores the default resume bundled at `src/data/default-resume.json` (or a remote `VITE_RESUME_DATA_URL`).
 - **Print-friendly** — `Cmd/Ctrl+P` hides editor chrome and prints a clean A4 page.
 
 ## Getting Started
@@ -45,7 +45,7 @@ cp .env.example .env.local   # then fill in EDITOR_PASSWORD and AUTH_SECRET
 ### Scripts
 
 | Command        | Description                          |
-|----------------|--------------------------------------|
+| -------------- | ------------------------------------ |
 | `pnpm dev`     | Vite dev server with SSR             |
 | `pnpm build`   | Full production build (client + SSR) |
 | `pnpm preview` | Build then serve locally             |
@@ -67,7 +67,8 @@ src/
 │   ├── AddSectionMenu.tsx     # "+ Add a section" dropdown
 │   └── ThemeStyle.tsx         # injects CSS variable overrides for the active palette
 ├── data/
-│   └── resume.ts              # Resume type, section types, palettes, factories
+│   ├── resume.ts              # Resume type, section types, palettes, factories
+│   └── default-resume.json    # bundled seed resume (loaded on first visit and on Reset)
 ├── routes/
 │   ├── index.tsx              # / — read-only preview (no login required)
 │   └── editor/index.tsx       # /editor — full editor, password-gated
@@ -78,8 +79,6 @@ src/
 │   └── linkify.ts             # autolink and sanitise HTML
 ├── global.css                 # paper styles, .rich-content, .resume-page
 └── root.tsx
-public/
-└── default-resume.json        # seed resume (loaded on first visit and on Reset)
 ```
 
 ## JSON Schema
@@ -94,25 +93,39 @@ canonical TypeScript types.
     "name": "Jane Smith",
     "title": "Senior Engineer",
     "contacts": [
-      { "id": "c_1", "type": "email",  "label": "jane@example.com" },
-      { "id": "c_2", "type": "tel",    "label": "+1 234 567 8900" },
-      { "id": "c_3", "type": "url",    "label": "linkedin.com/in/jane", "href": "https://linkedin.com/in/jane" },
-      { "id": "c_4", "type": "string", "label": "San Francisco, CA" }
-    ]
+      { "id": "c_1", "type": "email", "label": "jane@example.com" },
+      { "id": "c_2", "type": "tel", "label": "+1 234 567 8900" },
+      {
+        "id": "c_3",
+        "type": "url",
+        "label": "linkedin.com/in/jane",
+        "href": "https://linkedin.com/in/jane",
+      },
+      { "id": "c_4", "type": "string", "label": "San Francisco, CA" },
+    ],
   },
   "theme": { "paletteId": "orange-navy" },
   "sections": [
     {
-      "id": "sec_1", "type": "experience", "title": "Experience", "visible": true,
+      "id": "sec_1",
+      "type": "experience",
+      "title": "Experience",
+      "visible": true,
       "data": {
-        "items": [{
-          "id": "exp_1", "title": "Staff Engineer", "company": "Acme Corp",
-          "location": "Remote", "start": "2021-03", "end": "",
-          "description": "<ul><li>Led platform migration…</li></ul>"
-        }]
-      }
-    }
-  ]
+        "items": [
+          {
+            "id": "exp_1",
+            "title": "Staff Engineer",
+            "company": "Acme Corp",
+            "location": "Remote",
+            "start": "2021-03",
+            "end": "",
+            "description": "<ul><li>Led platform migration…</li></ul>",
+          },
+        ],
+      },
+    },
+  ],
 }
 ```
 
@@ -125,7 +138,7 @@ migrates transparently on load.
 ## AI Coding Skills
 
 This project ships a **`cv-import`** skill that extracts a PDF CV, enhances the content with an LLM, and writes a valid
-`Resume` JSON to `public/default-resume.json` — so you can preview the result immediately without logging in to the
+`Resume` JSON to `src/data/default-resume.json` — so you can preview the result immediately without logging in to the
 editor.
 
 ### cv-import
@@ -141,10 +154,11 @@ editor.
    PDF reading otherwise.
 2. Normalises all dates to `YYYY-MM`, classifies contacts by type, maps language proficiency to the enum, groups skills
    by category, and converts bullet points to HTML.
-3. Writes the result to `public/default-resume.json`.
+3. Writes the result to `src/data/default-resume.json`.
 4. Prints a one-liner to preview the result in the browser immediately — no editor password needed:
    ```js
-   localStorage.removeItem("qwik-resume-editor:v2"); location.reload();
+   localStorage.removeItem("qwik-resume-editor:v2");
+   location.reload();
    ```
 
 For best extraction quality, install markitdown first:
@@ -159,7 +173,7 @@ The skill is registered for all of the following agents. Each agent reads from i
 the same canonical `SKILL.md` so any edit propagates everywhere automatically.
 
 | Agent                                                     | Config directory                 |
-|-----------------------------------------------------------|----------------------------------|
+| --------------------------------------------------------- | -------------------------------- |
 | [Claude Code](https://claude.ai/code)                     | `.claude/skills/cv-import/`      |
 | [Cursor](https://cursor.com)                              | `.cursor/skills/cv-import/`      |
 | [Codex](https://platform.openai.com/docs/codex)           | `.codex/skills/cv-import/`       |
@@ -177,7 +191,7 @@ the same canonical `SKILL.md` so any edit propagates everywhere automatically.
 ### Accent colour and palette
 
 Select a palette from the toolbar at runtime (persisted in the JSON `theme` field). To change the default permanently,
-edit `PALETTES` in `src/data/resume.ts` or update `public/default-resume.json`.
+edit `PALETTES` in `src/data/resume.ts` or update `src/data/default-resume.json`.
 
 ### Typeface
 

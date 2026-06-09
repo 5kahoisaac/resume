@@ -91,8 +91,8 @@ export interface LanguagesData {
 
 export interface SkillGroup {
   id: string;
-  label: string;       // "Programming languages", "Frameworks", ...
-  skills: string[];    // free-text list of chips
+  label: string; // "Programming languages", "Frameworks", ...
+  skills: string[]; // free-text list of chips
 }
 
 export interface SkillsData {
@@ -102,7 +102,7 @@ export interface SkillsData {
 export interface ExpertiseItem {
   id: string;
   label: string;
-  level: number;       // 0..100 — drives the bar fill
+  level: number; // 0..100 — drives the bar fill
 }
 
 export interface ExpertiseData {
@@ -174,15 +174,69 @@ export interface ReferencesData {
 
 // Discriminated union — keeps editor + preview in lock-step with type safety
 export type ResumeSection =
-  | { id: string; type: "summary"; title: string; visible: boolean; data: SummaryData }
-  | { id: string; type: "languages"; title: string; visible: boolean; data: LanguagesData }
-  | { id: string; type: "skills"; title: string; visible: boolean; data: SkillsData }
-  | { id: string; type: "expertise"; title: string; visible: boolean; data: ExpertiseData }
-  | { id: string; type: "experience"; title: string; visible: boolean; data: ExperienceData }
-  | { id: string; type: "education"; title: string; visible: boolean; data: EducationData }
-  | { id: string; type: "certifications"; title: string; visible: boolean; data: CertificationsData }
-  | { id: string; type: "awards"; title: string; visible: boolean; data: AwardsData }
-  | { id: string; type: "references"; title: string; visible: boolean; data: ReferencesData };
+  | {
+      id: string;
+      type: "summary";
+      title: string;
+      visible: boolean;
+      data: SummaryData;
+    }
+  | {
+      id: string;
+      type: "languages";
+      title: string;
+      visible: boolean;
+      data: LanguagesData;
+    }
+  | {
+      id: string;
+      type: "skills";
+      title: string;
+      visible: boolean;
+      data: SkillsData;
+    }
+  | {
+      id: string;
+      type: "expertise";
+      title: string;
+      visible: boolean;
+      data: ExpertiseData;
+    }
+  | {
+      id: string;
+      type: "experience";
+      title: string;
+      visible: boolean;
+      data: ExperienceData;
+    }
+  | {
+      id: string;
+      type: "education";
+      title: string;
+      visible: boolean;
+      data: EducationData;
+    }
+  | {
+      id: string;
+      type: "certifications";
+      title: string;
+      visible: boolean;
+      data: CertificationsData;
+    }
+  | {
+      id: string;
+      type: "awards";
+      title: string;
+      visible: boolean;
+      data: AwardsData;
+    }
+  | {
+      id: string;
+      type: "references";
+      title: string;
+      visible: boolean;
+      data: ReferencesData;
+    };
 
 /**
  * Color palettes — accent and text bundled as a set. Users pick a palette,
@@ -192,16 +246,41 @@ export interface ColorPalette {
   id: string;
   name: string;
   accent: string; // section headings, links, contact icons, expertise bars
-  text: string;   // body copy and headings
+  text: string; // body copy and headings
 }
 
 export const PALETTES: ColorPalette[] = [
-  { id: "orange-navy",    name: "Orange · Navy",     accent: "#E67E22", text: "#1F3A5F" },
-  { id: "navy-black",     name: "Navy · Black",      accent: "#1F3A5F", text: "#111827" },
-  { id: "green-charcoal", name: "Green · Charcoal",  accent: "#0F766E", text: "#374151" },
-  { id: "purple-slate",   name: "Purple · Slate",    accent: "#7C3AED", text: "#334155" },
-  { id: "magenta-graphite", name: "Magenta · Graphite", accent: "#BE185D", text: "#1F2937" },
-  { id: "mono",           name: "Monochrome",        accent: "#111827", text: "#374151" },
+  {
+    id: "orange-navy",
+    name: "Orange · Navy",
+    accent: "#E67E22",
+    text: "#1F3A5F",
+  },
+  {
+    id: "navy-black",
+    name: "Navy · Black",
+    accent: "#1F3A5F",
+    text: "#111827",
+  },
+  {
+    id: "green-charcoal",
+    name: "Green · Charcoal",
+    accent: "#0F766E",
+    text: "#374151",
+  },
+  {
+    id: "purple-slate",
+    name: "Purple · Slate",
+    accent: "#7C3AED",
+    text: "#334155",
+  },
+  {
+    id: "magenta-graphite",
+    name: "Magenta · Graphite",
+    accent: "#BE185D",
+    text: "#1F2937",
+  },
+  { id: "mono", name: "Monochrome", accent: "#111827", text: "#374151" },
 ];
 
 export const DEFAULT_PALETTE_ID = "orange-navy";
@@ -214,7 +293,7 @@ export interface Resume {
   theme?: {
     paletteId?: string;
     accent?: string; // override the palette's accent
-    text?: string;   // override the palette's text
+    text?: string; // override the palette's text
   };
 }
 
@@ -226,13 +305,15 @@ export function uid(prefix = "id"): string {
 // ============================================================================
 // Default resume loading
 // ----------------------------------------------------------------------------
-// The default resume content is NOT compiled into the JS bundle. It lives at
-// `/public/default-resume.json` so an admin can edit the JSON and commit to
-// git for an auto-deployed update — no rebuild of components required.
+// The default resume content lives at `src/data/default-resume.json` and is
+// bundled into the build via a dynamic `import()` (code-split into its own
+// chunk, loaded lazily by `loadDefaultResume`). Edit the JSON and commit for an
+// auto-deployed update; the rebuild picks it up. To serve the default from an
+// external source instead, set `VITE_RESUME_DATA_URL`.
 //
-// Both the file at `/public/default-resume.json` AND any JSON exported by
-// the editor share the same `Resume` schema, so the file is round-trippable:
-// import an exported JSON, edit it, save it as default-resume.json, commit.
+// The bundled file AND any JSON exported by the editor share the same `Resume`
+// schema, so it is round-trippable: import an exported JSON, edit it, save it as
+// default-resume.json, commit.
 // ============================================================================
 
 /** Minimal empty resume for the SSR fallback path. */
@@ -244,21 +325,34 @@ export const EMPTY_RESUME: Resume = {
 };
 
 /**
- * Fetch the default resume JSON shipped at `/default-resume.json`.
- * Used as the seed when no localStorage data exists and on Reset.
+ * Resolve the default resume used to seed the editor when no localStorage data
+ * exists and on Reset.
+ *
+ * Resolution order:
+ *   1. If `VITE_RESUME_DATA_URL` is set, fetch the resume from that URL at
+ *      runtime (useful for serving a shared/hosted resume).
+ *   2. Otherwise — or if the fetch fails — fall back to the bundled
+ *      `default-resume.json`, code-split via dynamic `import()` so it stays out
+ *      of the initial chunk until first needed.
  */
 export async function loadDefaultResume(): Promise<Resume> {
-  if (typeof fetch === "undefined") return EMPTY_RESUME;
+  // `.default` holds the parsed JSON object on the dynamic-import namespace.
+  const DEFAULT_RESUME = (await import("./default-resume.json"))
+    .default as Resume;
+  if (typeof fetch === "undefined" || !import.meta.env.VITE_RESUME_DATA_URL)
+    return DEFAULT_RESUME;
+
   try {
-    const res = await fetch("/default-resume.json", { cache: "no-cache" });
-    if (!res.ok) return EMPTY_RESUME;
+    const res = await fetch(import.meta.env.VITE_RESUME_DATA_URL, {
+      cache: "no-cache",
+    });
+    if (!res.ok) return DEFAULT_RESUME;
     const data = (await res.json()) as Resume;
     return data;
   } catch {
-    return EMPTY_RESUME;
+    return DEFAULT_RESUME;
   }
 }
-
 
 // Factories so the "Add section" UI can spawn empty templates safely
 export function createEmptySection(type: SectionType): ResumeSection {
@@ -267,20 +361,68 @@ export function createEmptySection(type: SectionType): ResumeSection {
     case "summary":
       return { id, type, title: "Summary", visible: true, data: { text: "" } };
     case "languages":
-      return { id, type, title: "Languages", visible: true, data: { items: [] } };
+      return {
+        id,
+        type,
+        title: "Languages",
+        visible: true,
+        data: { items: [] },
+      };
     case "skills":
-      return { id, type, title: "Skills & Knowledges", visible: true, data: { groups: [] } };
+      return {
+        id,
+        type,
+        title: "Skills & Knowledge",
+        visible: true,
+        data: { groups: [] },
+      };
     case "expertise":
-      return { id, type, title: "Industry Expertise", visible: true, data: { items: [] } };
+      return {
+        id,
+        type,
+        title: "Industry Expertise",
+        visible: true,
+        data: { items: [] },
+      };
     case "experience":
-      return { id, type, title: "Experience", visible: true, data: { items: [] } };
+      return {
+        id,
+        type,
+        title: "Experience",
+        visible: true,
+        data: { items: [] },
+      };
     case "education":
-      return { id, type, title: "Education", visible: true, data: { items: [] } };
+      return {
+        id,
+        type,
+        title: "Education",
+        visible: true,
+        data: { items: [] },
+      };
     case "certifications":
-      return { id, type, title: "Licenses & Certifications", visible: true, data: { items: [] } };
+      return {
+        id,
+        type,
+        title: "Licenses & Certifications",
+        visible: true,
+        data: { items: [] },
+      };
     case "awards":
-      return { id, type, title: "Honors & Awards", visible: true, data: { items: [] } };
+      return {
+        id,
+        type,
+        title: "Honors & Awards",
+        visible: true,
+        data: { items: [] },
+      };
     case "references":
-      return { id, type, title: "References", visible: true, data: { items: [] } };
+      return {
+        id,
+        type,
+        title: "References",
+        visible: true,
+        data: { items: [] },
+      };
   }
 }

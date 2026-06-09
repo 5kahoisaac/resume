@@ -1,12 +1,26 @@
-import type { Resume, ResumeSection, ContactItem, LanguageLevel } from "~/data/resume";
-import { EMPTY_RESUME, loadDefaultResume, uid, LANGUAGE_LEVELS, DEFAULT_PALETTE_ID } from "~/data/resume";
+import type {
+  Resume,
+  ResumeSection,
+  ContactItem,
+  LanguageLevel,
+} from "~/data/resume";
+import {
+  EMPTY_RESUME,
+  loadDefaultResume,
+  uid,
+  LANGUAGE_LEVELS,
+  DEFAULT_PALETTE_ID,
+} from "~/data/resume";
 
 const STORAGE_KEY = "qwik-resume-editor:v2";
 
 function escapeHtml(s: string): string {
   return s
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 // ============================================================================
@@ -19,7 +33,7 @@ function escapeHtml(s: string): string {
 //         Experience/Education use "YYYY-MM"; empty end = present
 //         Languages have `level: LanguageLevel` enum
 //         Theme has `{ paletteId?, accent?, text? }`
-//         Default lives in /public/default-resume.json
+//         Default is bundled at src/data/default-resume.json (see loadDefaultResume)
 // ============================================================================
 
 function toMonth(s: any): string {
@@ -33,7 +47,8 @@ function toMonth(s: any): string {
 
 function normalizeLanguageLevel(level: any): LanguageLevel {
   if (typeof level !== "string") return "Intermediate";
-  if ((LANGUAGE_LEVELS as readonly string[]).includes(level)) return level as LanguageLevel;
+  if ((LANGUAGE_LEVELS as readonly string[]).includes(level))
+    return level as LanguageLevel;
   const lc = level.toLowerCase();
   if (lc.includes("native") || lc.includes("fluent")) return "Native";
   if (lc.includes("advanced")) return "Advanced";
@@ -56,7 +71,8 @@ export function migrate(resume: any): Resume {
     const h = resume.header;
     const contacts: ContactItem[] = [];
     const push = (type: ContactItem["type"], label?: string, href?: string) => {
-      if (label) contacts.push({ id: uid("c"), type, label, ...(href ? { href } : {}) });
+      if (label)
+        contacts.push({ id: uid("c"), type, label, ...(href ? { href } : {}) });
     };
     push("email", h.email, h.email ? `mailto:${h.email}` : undefined);
     if (h.phone) {
@@ -74,10 +90,18 @@ export function migrate(resume: any): Resume {
   // happen when stale store snapshots are spread during contact mutations.
   if (Array.isArray(resume.header.contacts)) {
     for (const c of resume.header.contacts as ContactItem[]) {
-      if (c.type === "email" && typeof c.label === "string" && c.label.startsWith("mailto:")) {
+      if (
+        c.type === "email" &&
+        typeof c.label === "string" &&
+        c.label.startsWith("mailto:")
+      ) {
         c.label = c.label.slice("mailto:".length).trim();
       }
-      if (c.type === "tel" && typeof c.label === "string" && c.label.startsWith("tel:")) {
+      if (
+        c.type === "tel" &&
+        typeof c.label === "string" &&
+        c.label.startsWith("tel:")
+      ) {
         c.label = c.label.slice("tel:".length).trim();
       }
     }
@@ -113,7 +137,9 @@ export function migrate(resume: any): Resume {
           const alreadyHasList = /<ul[\s>]/i.test(existing);
           item.description = alreadyHasList
             ? existing
-            : existing ? `${existing}<ul>${listHtml}</ul>` : `<ul>${listHtml}</ul>`;
+            : existing
+              ? `${existing}<ul>${listHtml}</ul>`
+              : `<ul>${listHtml}</ul>`;
         }
         delete item.bullets;
       }
@@ -130,8 +156,9 @@ export function migrate(resume: any): Resume {
 }
 
 /**
- * Load: localStorage first, then /default-resume.json. Async because the
- * default lives on the server now and we fetch it lazily.
+ * Load: localStorage first, then the default resume. Async because the default
+ * is resolved lazily by `loadDefaultResume` — either the bundled
+ * `src/data/default-resume.json` or a remote `VITE_RESUME_DATA_URL`.
  */
 export async function loadResume(): Promise<Resume> {
   if (typeof window === "undefined") return EMPTY_RESUME;
@@ -139,11 +166,17 @@ export async function loadResume(): Promise<Resume> {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === "object" && Array.isArray(parsed.sections)) {
+      if (
+        parsed &&
+        typeof parsed === "object" &&
+        Array.isArray(parsed.sections)
+      ) {
         return migrate(parsed);
       }
     }
-  } catch { /* fall through */ }
+  } catch {
+    /* fall through */
+  }
   return migrate(await loadDefaultResume());
 }
 
@@ -151,7 +184,9 @@ export function saveResume(resume: Resume): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(resume));
-  } catch { /* quota — ignore */ }
+  } catch {
+    /* quota — ignore */
+  }
 }
 
 export function clearResume(): void {
@@ -160,7 +195,9 @@ export function clearResume(): void {
 }
 
 export function downloadResumeJSON(resume: Resume): void {
-  const blob = new Blob([JSON.stringify(resume, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(resume, null, 2)], {
+    type: "application/json",
+  });
   const url = URL.createObjectURL(blob);
   const fileName = `${resume.header.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "resume"}.json`;
   const a = document.createElement("a");
@@ -174,12 +211,18 @@ export function downloadResumeJSON(resume: Resume): void {
 
 export function parseResumeJSON(jsonText: string): Resume {
   let parsed: unknown;
-  try { parsed = JSON.parse(jsonText); }
-  catch { throw new Error("This file isn't valid JSON."); }
-  if (!parsed || typeof parsed !== "object") throw new Error("JSON root must be an object.");
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch {
+    throw new Error("This file isn't valid JSON.");
+  }
+  if (!parsed || typeof parsed !== "object")
+    throw new Error("JSON root must be an object.");
   const r = parsed as Partial<Resume>;
   if (!r.header || !Array.isArray(r.sections)) {
-    throw new Error("Missing `header` or `sections` — is this a resume export?");
+    throw new Error(
+      "Missing `header` or `sections` — is this a resume export?",
+    );
   }
   return migrate(r);
 }

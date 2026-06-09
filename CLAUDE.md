@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This project ships a custom skill. Invoke it via your agent's skill command (e.g. `/cv-import`):
 
-| Skill       | Trigger                      | Purpose                                                                                                                                                       |
-|-------------|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `cv-import` | `/cv-import /path/to/cv.pdf` | Extract a PDF CV with LLM (markitdown if available), enhance content, and write `public/default-resume.json`. No editor login required to preview the result. |
+| Skill       | Trigger                      | Purpose                                                                                                                                                         |
+|-------------|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `cv-import` | `/cv-import /path/to/cv.pdf` | Extract a PDF CV with LLM (markitdown if available), enhance content, and write `src/data/default-resume.json`. No editor login required to preview the result. |
 
-After the skill writes `public/default-resume.json`, clear the cached resume and reload to see it:
+After the skill writes `src/data/default-resume.json`, clear the cached resume and reload to see it:
 
 ```js
 localStorage.removeItem("qwik-resume-editor:v2");
@@ -61,25 +61,26 @@ preview pane side-by-side.
 
 ### Key files
 
-| File                                | Purpose                                                                                    |
-|-------------------------------------|--------------------------------------------------------------------------------------------|
-| `src/data/resume.ts`                | `Resume` type, discriminated union for all section types, `PALETTES`, `createEmptySection` |
-| `src/components/ResumeApp.tsx`      | Root editor orchestrator — all state and mutation QRLs live here                           |
-| `src/components/ResumePreview.tsx`  | A4 paper renderer; `id="resume-preview-page"` is the PDF capture target                    |
-| `src/components/SectionEditor.tsx`  | All per-section editor forms in one file                                                   |
-| `src/components/HeaderEditor.tsx`   | Name, title, contact list editor                                                           |
-| `src/components/RichTextEditor.tsx` | TinyMCE web component wrapper                                                              |
-| `src/components/Toolbar.tsx`        | Sticky top bar — zoom, palette picker, export/import/reset actions                         |
-| `src/components/ThemeStyle.tsx`     | Injects CSS variable overrides for the active palette into `:root`                         |
-| `src/components/TagInput.tsx`       | Chip/tag input used by the Skills section                                                  |
-| `src/components/AddSectionMenu.tsx` | "+ Add a section" dropdown; lists available section types                                  |
-| `src/utils/pdf.ts`                  | html2canvas → jsPDF export pipeline with smart page breaks and link annotations            |
-| `src/utils/linkify.ts`              | `renderRichText` (sanitise HTML or autolink plain text), `autoLink`, `sanitiseHtml`        |
-| `src/utils/storage.ts`              | `loadResume`, `saveResume`, schema migration (v1→v2)                                       |
-| `src/utils/auth.ts`                 | HMAC-SHA256 session cookie auth for the `/editor` route                                    |
-| `src/global.css`                    | Paper styles, `.rich-content` formatting, `.resume-page` dimensions                        |
-| `src/routes/index.tsx`              | Home route — read-only preview, `canEdit=false`                                            |
-| `src/routes/editor/index.tsx`       | Editor route — full editing UI, password-gated                                             |
+| File                                | Purpose                                                                                                         |
+|-------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `src/data/resume.ts`                | `Resume` type, discriminated union for all section types, `PALETTES`, `createEmptySection`, `loadDefaultResume` |
+| `src/data/default-resume.json`      | Bundled seed resume (code-split via dynamic `import()`); the default on first visit and Reset                   |
+| `src/components/ResumeApp.tsx`      | Root editor orchestrator — all state and mutation QRLs live here                                                |
+| `src/components/ResumePreview.tsx`  | A4 paper renderer; `id="resume-preview-page"` is the PDF capture target                                         |
+| `src/components/SectionEditor.tsx`  | All per-section editor forms in one file                                                                        |
+| `src/components/HeaderEditor.tsx`   | Name, title, contact list editor                                                                                |
+| `src/components/RichTextEditor.tsx` | TinyMCE web component wrapper                                                                                   |
+| `src/components/Toolbar.tsx`        | Sticky top bar — zoom, palette picker, export/import/reset actions                                              |
+| `src/components/ThemeStyle.tsx`     | Injects CSS variable overrides for the active palette into `:root`                                              |
+| `src/components/TagInput.tsx`       | Chip/tag input used by the Skills section                                                                       |
+| `src/components/AddSectionMenu.tsx` | "+ Add a section" dropdown; lists available section types                                                       |
+| `src/utils/pdf.ts`                  | html2canvas → jsPDF export pipeline with smart page breaks and link annotations                                 |
+| `src/utils/linkify.ts`              | `renderRichText` (sanitise HTML or autolink plain text), `autoLink`, `sanitiseHtml`                             |
+| `src/utils/storage.ts`              | `loadResume`, `saveResume`, schema migration (v1→v2)                                                            |
+| `src/utils/auth.ts`                 | HMAC-SHA256 session cookie auth for the `/editor` route                                                         |
+| `src/global.css`                    | Paper styles, `.rich-content` formatting, `.resume-page` dimensions                                             |
+| `src/routes/index.tsx`              | Home route — read-only preview, `canEdit=false`                                                                 |
+| `src/routes/editor/index.tsx`       | Editor route — full editing UI, password-gated                                                                  |
 
 ## Critical Qwik gotchas
 
@@ -92,12 +93,12 @@ a `$()` closure.
 ```tsx
 // WRONG — `header` is a stale snapshot inside the QRL
 const Header = component$(({header, onUpdate$}) => {
-    const save = $(() => onUpdate$({...header, name: 'x'})); // header is stale
+    const save = $(() => onUpdate$({...header, name: "x"})); // header is stale
 });
 
 // CORRECT — read props.header live at call time
 const Header = component$((props) => {
-    const save = $(() => props.onUpdate$({...props.header, name: 'x'}));
+    const save = $(() => props.onUpdate$({...props.header, name: "x"}));
 });
 ```
 
@@ -108,10 +109,10 @@ changes but its key stays the same (e.g. a stable ID), the DOM won't update. Inc
 
 ```tsx
 // WRONG — reconciler reuses node, label text never updates in preview
-contacts.map(c => <a key={c.id}>{c.label}</a>)
+contacts.map((c) => <a key={c.id}>{c.label}</a>);
 
 // CORRECT — label change → new key → node remounts with fresh text
-contacts.map(c => <a key={`${c.id}-${c.label}`}>{c.label}</a>)
+contacts.map((c) => <a key={`${c.id}-${c.label}`}>{c.label}</a>);
 ```
 
 This is why `src/components/ResumePreview.tsx` uses `key={\`${c.id}-${c.label}\`}` for contact items.
@@ -133,7 +134,7 @@ The store mutation itself is synchronous — the preview re-renders immediately.
 `RichTextEditor.tsx` wraps `@tinymce/tinymce-webcomponent@2` from CDN.
 
 **Event binding:** The web component calls `setup` only from a global config object named by its `config` attribute — it
-ignores a `setup` *property* set on the element. Bind change listeners by polling for `(editorEl as any)._editor` (set
+ignores a `setup` _property_ set on the element. Bind change listeners by polling for `(editorEl as any)._editor` (set
 after init) and calling `.on(events, handler)` directly on the TinyMCE instance.
 
 **Runtime theme colors:** `content_style` is read only at TinyMCE init. To update colors when the palette changes
@@ -149,8 +150,9 @@ natural width). This is below the `lg` (1024px) breakpoint, so the responsive mo
 in the clone, making the preview pane invisible → blank PDF. The `onclone` hook forces all ancestors visible:
 
 ```ts
-if (getComputedStyle(ancestor).display === 'none') ancestor.style.display = 'block';
-ancestor.style.overflow = 'visible';
+if (getComputedStyle(ancestor).display === "none")
+    ancestor.style.display = "block";
+ancestor.style.overflow = "visible";
 ```
 
 **Link annotations:** After rasterizing, `overlayLinks()` walks `a[href]` in the preview node, converts `offsetTop`/
@@ -174,8 +176,9 @@ Current schema version: `2.0.0`. Migration from v1 (handled in `src/utils/storag
 
 ## Environment variables
 
-| Variable               | Purpose                                           |
-|------------------------|---------------------------------------------------|
-| `EDITOR_PASSWORD`      | Password to access `/editor` (server-side only)   |
-| `AUTH_SECRET`          | HMAC-SHA256 signing key for session cookies       |
-| `VITE_TINYMCE_API_KEY` | Optional — removes the TinyMCE attribution notice |
+| Variable               | Purpose                                                                                                                |
+|------------------------|------------------------------------------------------------------------------------------------------------------------|
+| `EDITOR_PASSWORD`      | Password to access `/editor` (server-side only)                                                                        |
+| `AUTH_SECRET`          | HMAC-SHA256 signing key for session cookies                                                                            |
+| `VITE_TINYMCE_API_KEY` | Optional — removes the TinyMCE attribution notice                                                                      |
+| `VITE_RESUME_DATA_URL` | Optional — fetch the default resume from this URL at runtime; falls back to the bundled `src/data/default-resume.json` |

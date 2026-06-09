@@ -28,3 +28,6 @@ pnpm-debug.log*
 
 # Netlify
 .netlify
+
+# Local development
+.claude/settings.local.json

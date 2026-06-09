@@ -12,7 +12,7 @@ Import any CV/resume PDF into the qwik-resume-editor JSON format in three stages
 ## Usage
 
 ```
-/cv-import /path/to/cv.pdf                  # writes public/default-resume.json (default)
+/cv-import /path/to/cv.pdf                  # writes src/data/default-resume.json (default)
 /cv-import /path/to/cv.pdf --output resume.json   # write to a custom file instead
 ```
 
@@ -244,8 +244,8 @@ levels. Map to 0–100:
 
 ## Stage 4 — Output
 
-1. **Write `public/default-resume.json`** in the project root (default behaviour). This is the file the app fetches on
-   first visit and on Reset — no editor login required to see the result.
+1. **Write `src/data/default-resume.json`** in the project root (default behaviour). This is the file the app bundles as
+   the seed shown on first visit and on Reset — no editor login required to see the result.
     - If `--output <file>` was specified, write to that path instead.
 2. **Print the full JSON** to the conversation so the user can review it.
 3. **Summarise what was imported** in a short table:

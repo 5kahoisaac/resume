@@ -16,6 +16,16 @@ interface ImportMetaEnv {
    *   VITE_TINYMCE_API_KEY=your-key-here
    */
   readonly VITE_TINYMCE_API_KEY?: string;
+
+  /**
+   * Optional URL to fetch the default resume JSON from at runtime. When set,
+   * `loadDefaultResume()` fetches this URL (used as the seed and on Reset);
+   * when unset or the fetch fails, it falls back to the bundled
+   * `src/data/default-resume.json`. Example:
+   *
+   *   VITE_RESUME_DATA_URL=https://example.com/resume.json
+   */
+  readonly VITE_RESUME_DATA_URL?: string;
 }
 
 interface ImportMeta {
