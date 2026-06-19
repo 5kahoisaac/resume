@@ -10,7 +10,6 @@ import type {
   SkillGroup,
   ExpertiseItem,
   LanguageItem,
-  ContactItem,
 } from "~/data/resume";
 import { LANGUAGE_LEVEL_DOTS, PALETTES, DEFAULT_PALETTE_ID } from "~/data/resume";
 import { renderRichText, autoLink } from "~/utils/linkify";
@@ -188,56 +187,6 @@ const ICON_GLYPH: Record<IconKind, string> = {
   link: "↗",  // ASCII-printable arrow — renders as text glyph
   pin: "◆",  // diamond — renders cleanly as a glyph
 };
-
-interface ContactItemProps {
-  icon: IconKind;
-  value: string;
-  accent: string;
-  text: string;
-  href?: string;
-  external?: boolean;
-}
-const ContactItem = component$<ContactItemProps>(
-  ({ icon, value, accent, text, href, external }) => {
-    const inner = (
-      <>
-        <span
-          style={{
-            color: accent,
-            fontSize: "10pt",
-            lineHeight: 1,
-            marginRight: "4px",
-            display: "inline-block",
-            verticalAlign: "middle",
-          }}
-          aria-hidden="true"
-        >
-          {ICON_GLYPH[icon]}
-        </span>
-        <span style={{ color: text, verticalAlign: "middle" }}>{value}</span>
-      </>
-    );
-    const itemStyle = { textDecoration: "none", whiteSpace: "nowrap", marginRight: "18px" };
-    if (href) {
-      return (
-        <a
-          class="inline-block"
-          href={href}
-          target={external ? "_blank" : undefined}
-          rel={external ? "noopener noreferrer" : undefined}
-          style={itemStyle}
-        >
-          {inner}
-        </a>
-      );
-    }
-    return (
-      <span class="inline-block" style={itemStyle}>
-        {inner}
-      </span>
-    );
-  },
-);
 
 // ============================================================================
 // Section dispatcher — picks the right renderer based on the discriminated union
