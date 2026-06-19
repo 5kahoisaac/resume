@@ -52,10 +52,6 @@ import { ThemeStyle } from "~/components/ThemeStyle";
 // (e.g. "Edit" / "Log out").
 // ============================================================================
 
-/** A4 paper width at 96dpi — mirrors `--paper-width` in global.css. Used to
- *  compute a fit-to-width zoom on small screens. */
-const PAPER_WIDTH_PX = 794;
-
 interface PageStore {
   resume: Resume;
   draggedIndex: number | null;

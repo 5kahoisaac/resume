@@ -76,7 +76,11 @@ export const SectionEditor = component$<Props>((props) => {
           draggable={true}
           onDragStart$={(ev) => {
             // dataTransfer must be set or Firefox won't drag
-            try { (ev as DragEvent).dataTransfer?.setData("text/plain", String(props.index)); } catch {}
+            try {
+              (ev as DragEvent).dataTransfer?.setData("text/plain", String(props.index));
+            } catch {
+              /* setData can throw in rare browser states — drag still works without it */
+            }
             props.onDragStart$(props.index);
           }}
         >
