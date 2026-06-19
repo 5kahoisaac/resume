@@ -130,22 +130,51 @@ export function autoLink(text: string): string {
 export function sanitiseHtml(html: string): string {
   if (!html) return "";
 
-  // Remove dangerous tags entirely (including their content)
-  let out = html.replace(
-    /<(script|style|iframe|object|embed|link|meta)\b[^>]*>[\s\S]*?<\/\1>/gi,
-    "",
-  );
-  // Self-closing variants
-  out = out.replace(
-    /<(script|style|iframe|object|embed|link|meta)\b[^>]*\/?>/gi,
-    "",
-  );
-  // Strip on* event handlers — e.g. onclick="...", onerror='...'
+  const DANGEROUS_TAGS = /<(script|style|iframe|object|embed|link|meta)\b/i;
+
+  // Bypass class: tag-name obfuscation via interleaving — e.g.
+  // `<scr<script>ipt>` where removing the inner tag reassembles a live one.
+  // A single pass can't catch this, so we remove dangerous tags repeatedly
+  // until the string stops changing (fixed point). The iteration cap guards
+  // against pathological inputs; if we hit it we fall back to escaping the
+  // whole string (safe default — renders as inert text, never as markup).
+  let out = html;
+  let iterations = 0;
+  const MAX_ITERATIONS = 10;
+  while (DANGEROUS_TAGS.test(out)) {
+    if (iterations >= MAX_ITERATIONS) return escapeHtml(html);
+    // Remove dangerous tags entirely (including their content)
+    out = out.replace(
+      /<(script|style|iframe|object|embed|link|meta)\b[^>]*>[\s\S]*?<\/\1>/gi,
+      "",
+    );
+    // Self-closing / unpaired variants
+    out = out.replace(
+      /<(script|style|iframe|object|embed|link|meta)\b[^>]*\/?>/gi,
+      "",
+    );
+    iterations++;
+  }
+
+  // Bypass class: inline event handlers — strip on* attributes whether the
+  // value is double-quoted, single-quoted, or unquoted. `\s+` anchors to an
+  // attribute boundary so we don't chew into tag/text content; the value
+  // alternation tolerates newlines inside quoted values via [^"]/[^'].
   out = out.replace(/\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
-  // Block javascript:/data: schemes inside href/src
+
+  // Bypass class: dangerous URL schemes in href/src, QUOTED *or UNQUOTED*.
+  // The old blocker only matched quoted values, so `href=javascript:alert(1)`
+  // (no quotes) slipped through. Two passes cover both quoting styles:
+  //   1. Quoted: value runs to the matching quote and may contain >/spaces
+  //      (e.g. data:text/html,<h1>x</h1>), so we consume up to the quote.
+  //   2. Unquoted: value is terminated by whitespace or `>`.
   out = out.replace(
     /\s(href|src)\s*=\s*(["'])\s*(?:javascript|data|vbscript):[^"']*\2/gi,
     " $1=$2#$2",
+  );
+  out = out.replace(
+    /\s(href|src)\s*=\s*(?:javascript|data|vbscript):[^\s>]*/gi,
+    " $1=#",
   );
   return out;
 }
