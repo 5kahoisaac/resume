@@ -1,4 +1,5 @@
 import { globalAction$, zod$, z, type RequestEventLoader, type RequestEventAction } from "@builder.io/qwik-city";
+import { getSecret, makeToken, verifyToken } from "./auth-crypto";
 
 // ============================================================================
 // Minimal server-side auth.
@@ -10,50 +11,18 @@ import { globalAction$, zod$, z, type RequestEventLoader, type RequestEventActio
 //
 // Signed with AUTH_SECRET via the Web Crypto API (HMAC-SHA256) — available in
 // the Netlify Edge runtime, so nothing here pulls in node:crypto and the
-// client bundle stays clean.
+// client bundle stays clean. The pure crypto helpers live in auth-crypto.ts
+// (no qwik-city import) so they can be unit-tested in plain vitest/Node.
 // ============================================================================
 
 const COOKIE_NAME = "rf_session";
-const SESSION_VALUE = "ok";
-
-function getSecret(env: { get: (k: string) => string | undefined }): string {
-  return env.get("AUTH_SECRET") || "dev-insecure-secret-change-me";
-}
-
-async function hmac(value: string, secret: string): Promise<string> {
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(value));
-  return Array.from(new Uint8Array(sig))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-async function makeToken(secret: string): Promise<string> {
-  return `${SESSION_VALUE}.${await hmac(SESSION_VALUE, secret)}`;
-}
-
-async function verifyToken(token: string | undefined, secret: string): Promise<boolean> {
-  if (!token) return false;
-  const [val, sig] = token.split(".");
-  if (val !== SESSION_VALUE || !sig) return false;
-  const expected = await hmac(SESSION_VALUE, secret);
-  if (sig.length !== expected.length) return false;
-  let diff = 0;
-  for (let i = 0; i < sig.length; i++) diff |= sig.charCodeAt(i) ^ expected.charCodeAt(i);
-  return diff === 0;
-}
 
 /** Check the request's session cookie. Call from routeLoader$ (server-side). */
 export async function isAuthed(req: RequestEventLoader | RequestEventAction): Promise<boolean> {
+  const secret = getSecret(req.env);
+  if (!secret) return false; // no secret configured → no session is valid (fail closed)
   const token = req.cookie.get(COOKIE_NAME)?.value;
-  return verifyToken(token, getSecret(req.env));
+  return verifyToken(token, secret);
 }
 
 /** Login action — validates password against EDITOR_PASSWORD env var. */
@@ -66,7 +35,11 @@ export const loginAction = globalAction$(
     if (data.password !== expected) {
       return req.fail(401, { message: "Incorrect password." });
     }
-    const token = await makeToken(getSecret(req.env));
+    const secret = getSecret(req.env);
+    if (!secret) {
+      return req.fail(500, { message: "Server has no AUTH_SECRET configured." });
+    }
+    const token = await makeToken(secret);
     req.cookie.set(COOKIE_NAME, token, {
       httpOnly: true,
       secure: true,
