@@ -157,6 +157,46 @@ describe("sanitiseHtml", () => {
 });
 
 // ============================================================================
+// sanitiseHtml bypass resistance — each case targets a known regex-sanitizer
+// bypass class. See plan 004.
+// ============================================================================
+describe("sanitiseHtml bypass resistance", () => {
+  it("neutralizes an UNQUOTED javascript: scheme in href", () => {
+    // Bypass class: unquoted attribute value — the old scheme blocker only
+    // matched quoted values, so href=javascript:... slipped through.
+    const result = sanitiseHtml("<a href=javascript:alert(1)>x</a>");
+    expect(result).not.toMatch(/href\s*=\s*["']?\s*javascript:/i);
+  });
+
+  it("neutralizes a mixed-case JavaScript: scheme in a quoted href", () => {
+    const result = sanitiseHtml('<a href="JavaScript:alert(1)">x</a>');
+    expect(result).not.toMatch(/href\s*=\s*["']?\s*javascript:/i);
+  });
+
+  it("does not leave a live <script> after removing an interleaved inner tag", () => {
+    // Bypass class: tag-name obfuscation — removing the inner <script>
+    // reassembles <script> from <scr ...ipt>. Single-pass replace misses it.
+    const result = sanitiseHtml("<scr<script>ipt>alert(1)</script>");
+    expect(result.toLowerCase()).not.toContain("<script");
+  });
+
+  it("strips onerror from <img> (unquoted handler value)", () => {
+    const result = sanitiseHtml("<img src=x onerror=alert(1)>");
+    expect(result).not.toMatch(/onerror/i);
+  });
+
+  it("strips onload from a script-capable <svg> tag", () => {
+    const result = sanitiseHtml("<svg onload=alert(1)>");
+    expect(result).not.toMatch(/onload/i);
+  });
+
+  it("benign control: formatting markup passes through unchanged (no over-stripping)", () => {
+    const input = "<strong>hi</strong> <ul><li>a</li></ul>";
+    expect(sanitiseHtml(input)).toBe(input);
+  });
+});
+
+// ============================================================================
 // renderRichText
 // ============================================================================
 describe("renderRichText", () => {
