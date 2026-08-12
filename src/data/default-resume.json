@@ -153,6 +153,8 @@
               "Storybook",
               "Docker",
               "Camunda",
+              "Spark",
+              "Kafka",
               "Airflow",
               "Streamlit",
               "n8n",
@@ -350,7 +352,7 @@
           },
           {
             "id": "crt_9ujwt3v",
-            "name": "IBM Data Engineering Professional Certificate",
+            "name": "IBM Data Engineering Professional",
             "issuer": "IBM"
           },
           {
