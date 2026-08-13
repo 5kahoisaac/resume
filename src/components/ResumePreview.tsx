@@ -434,7 +434,7 @@ const EducationBlock = component$<{ items: EducationItem[]; accent: string; text
 const CertificationsBlock = component$<{ items: CertificationItem[] }>(({ items }) => (
   <div class="grid grid-cols-2 gap-x-8 gap-y-3">
     {items.map((c) => (
-      <div key={`${c.id}-${c.name}`}>
+      <div key={`${c.id}-${c.name}-${c.issuer}`}>
         <div class="font-sans font-bold" style={{ fontSize: "10pt" }}>
           {c.name}
         </div>
@@ -449,7 +449,7 @@ const CertificationsBlock = component$<{ items: CertificationItem[] }>(({ items 
 const AwardsBlock = component$<{ items: AwardItem[]; accent: string }>(({ items, accent }) => (
   <div class="grid grid-cols-2 gap-x-8 gap-y-3">
     {items.map((a) => (
-      <div key={`${a.id}-${a.name}`} class="flex gap-2.5">
+      <div key={`${a.id}-${a.name}-${a.description}`} class="flex gap-2.5">
         <span class="text-lg leading-none mt-0.5" style={{ color: accent }}>
           ◆
         </span>
