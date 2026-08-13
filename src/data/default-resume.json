@@ -153,8 +153,6 @@
               "Storybook",
               "Docker",
               "Camunda",
-              "Spark",
-              "Kafka",
               "Airflow",
               "Streamlit",
               "n8n",
@@ -352,7 +350,7 @@
           },
           {
             "id": "crt_9ujwt3v",
-            "name": "IBM Data Engineering Professional",
+            "name": "IBM Data Engineering Professional Certificate",
             "issuer": "IBM"
           },
           {
@@ -368,6 +366,11 @@
           {
             "id": "crt_w19v3c9",
             "name": "Google Project Management",
+            "issuer": "Google"
+          },
+          {
+            "id": "crt_hyomqol",
+            "name": "Generative AI Leader",
             "issuer": "Google"
           },
           {
