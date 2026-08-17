@@ -153,6 +153,8 @@
               "Storybook",
               "Docker",
               "Camunda",
+              "Spark",
+              "Kafka",
               "Airflow",
               "Streamlit",
               "n8n",
@@ -339,6 +341,21 @@
             "issuer": "AWS"
           },
           {
+            "id": "crt_atrkyp5",
+            "name": "Microsoft IT Support Specialist Professional Certificate",
+            "issuer": "Microsoft"
+          },
+          {
+            "id": "crt_ga145ak",
+            "name": "Meta React Specialization",
+            "issuer": "Meta"
+          },
+          {
+            "id": "crt_v5n3zk1",
+            "name": "Meta React Native",
+            "issuer": "Meta"
+          },
+          {
             "id": "crt_283gy6c",
             "name": "Meta Front-End Developer",
             "issuer": "Meta"
@@ -350,13 +367,8 @@
           },
           {
             "id": "crt_9ujwt3v",
-            "name": "IBM Data Engineering Professional Certificate",
+            "name": "IBM Data Engineering Professional",
             "issuer": "IBM"
-          },
-          {
-            "id": "crt_atrkyp5",
-            "name": "Microsoft IT Support Specialist Professional Certificate",
-            "issuer": "Microsoft"
           },
           {
             "id": "id_29",
@@ -366,11 +378,6 @@
           {
             "id": "crt_w19v3c9",
             "name": "Google Project Management",
-            "issuer": "Google"
-          },
-          {
-            "id": "crt_hyomqol",
-            "name": "Generative AI Leader",
             "issuer": "Google"
           },
           {
